@@ -4,49 +4,53 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:client/screen.dart';
 import 'package:client/style.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'memorial_main.dart' as main;
+import 'late_watch_others.dart'as lwatch;
 import 'package:http/http.dart' as http;
 import 'package:client/sign/sign_in.dart' as sign_in;
-import 'package:client/memorial/slide/flutter_image_slideshow.dart';
 import 'package:client/home.dart' as home;
+import 'package:client/memorial/slide/flutter_image_slideshow.dart';
 
-class MemorialDetailPage extends StatefulWidget {
+class LateWatchOthersMemorialDetailPage extends StatefulWidget {
   @override
-  State<MemorialDetailPage> createState() => _MemorialDetailPageState();
+  State<LateWatchOthersMemorialDetailPage> createState() => _LateWatchOthersMemorialDetailPageState();
 }
 
-class _MemorialDetailPageState extends State<MemorialDetailPage> {
+class _LateWatchOthersMemorialDetailPageState extends State<LateWatchOthersMemorialDetailPage> {
+
+  //lwatch.selectedPostId.toString()
 
   // 화면에 보이는 UI 설정 bool
-  bool fetchSuccess = false;
   bool askHelp = true;
   bool sendHelp = false;
 
-  bool addComment = false; // 바로 코멘트 붙였을 때
+  bool fetchSuccess = false;
+
+  // 텍스트에디팅컨트롤러를 생성하여 필드에 할당
+  final myController = TextEditingController();
+
+  late Map<String, dynamic> parsedResponseCN; // 글 내용
+  late List<dynamic> parsedResponseCM; // 댓글
+
+  List<String> parsedResponseIMGS = []; // 이미지 개수
+
   bool isComment = false;
 
   // 코멘트 수와 좋아요 수
   int comments = 0;
   int hearts = 0;
 
-  late Map<String, dynamic> parsedResponseCN; // 글 내용
-  late List<dynamic> parsedResponseCM; // 댓글
-  late bool myHeart; // 내가 좋아요 눌렀는지
+  late bool myHeart;
 
-  List<String> parsedResponseIMGS = []; // 이미지 개수
-
-  // 텍스트에디팅컨트롤러를 생성하여 필드에 할당
-  final myController = TextEditingController();
+  bool setComment = false;
 
   // 글내용 가져오기
   void fetchWithHeaders(String aToken) async {
     // API 엔드포인트 URL
-    String apiUrl = 'http://3.38.1.125:8080/memorial?postId=${main.postId.toString()}'; // 실제 API 엔드포인트로 변경하세요
+    String apiUrl = 'http://3.38.1.125:8080/memorial?postId=${lwatch.selectedPostId.toString()}'; // 실제 API 엔드포인트로 변경하세요
 
+    print("몇번이야? "+lwatch.selectedPostId.toString());
     // 헤더 정보 설정
     Map<String, String> headers = {
       'Authorization': 'Bearer $aToken', // 예: 인증 토큰을 추가하는 방법
@@ -64,18 +68,13 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
       // 응답 데이터 처리
       fetchSuccess = true;
       setState(() {});
-      print('서버로부터 받은 내용 데이터: ${response.body}');
+      print('서버로부터 받은 내용 데이터(글 내용): ${response.body}');
       var jsonResponse = utf8.decode(response.bodyBytes);
 
       parsedResponseCN = json.decode(jsonResponse);
 
       // List<dynamic> 형식
       print("image test" + parsedResponseCN['imageList'][0].toString());
-
-      hearts = parsedResponseCN['likes'];
-      setState(() {
-
-      });
 
       for(int i = 0; i<parsedResponseCN.length; i++){
         parsedResponseIMGS.add(parsedResponseCN['imageList'][i].toString());
@@ -88,71 +87,10 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
     }
   }
 
-  // 글 삭제하기
-  void deleteContent(String aToken) async {
-    // API 엔드포인트 URL
-    String apiUrl = 'http://3.38.1.125:8080/memorial?postId=${main.postId.toString()}';
-
-    // 헤더 정보 설정
-    Map<String, String> headers = {
-      'Authorization': 'Bearer $aToken', // 예: 인증 토큰을 추가하는 방법
-      'Content-Type': 'application/json', // 예: JSON 요청인 경우 헤더 설정
-    };
-
-    // HTTP GET 요청 보내기
-    var response = await http.delete(
-      Uri.parse(apiUrl),
-      headers: headers, // 헤더 추가
-    );
-
-    ///var jsonResponse = utf8.decode(response.bodyBytes);
-    // HTTP 응답 상태 확인
-    if (response.statusCode == 200) {
-      // 응답 데이터를 JSON 형식으로 디코딩
-      print("삭제성공");
-      setState(() {
-      });
-
-    } else {
-      // 요청이 실패한 경우 오류 처리
-      print('HTTP 요청 실패: ${response.statusCode}');
-    }
-  }
-
-  void fetchData(String aToken) async {
-    // API 엔드포인트 URL
-    String apiUrl = 'http://3.38.1.125:8080/memorial?postId=${main.postId.toString()}';
-
-    // HTTP GET 요청 보내기
-    var response = await http.get(Uri.parse(apiUrl));
-
-    ///var jsonResponse = utf8.decode(response.bodyBytes);
-    // HTTP 응답 상태 확인
-    if (response.statusCode == 200) {
-      // 응답 데이터를 JSON 형식으로 디코딩
-      var data = json.decode(response.body);
-      var jsonResponse = utf8.decode(response.bodyBytes);
-
-      parsedResponseCN = json.decode(jsonResponse);
-
-      // 데이터 처리
-      print('서버로부터 받은 내용 데이터: $jsonResponse');
-
-      isComment = true;
-      setState(() {
-
-      });
-
-    } else {
-      // 요청이 실패한 경우 오류 처리
-      print('HTTP 요청 실패: ${response.statusCode}');
-    }
-  }
-
   // 댓글 가져오기
   void fetchDataComment() async {
     // API 엔드포인트 URL
-    String apiUrl = 'http://3.38.1.125:8080/memorial/comment?postId=${main.postId.toString()}'; /// postId=1 추후에 바꿔주기
+    String apiUrl = 'http://3.38.1.125:8080/memorial/comment?postId=${lwatch.selectedPostId.toString()}';
 
     // HTTP GET 요청 보내기
     var response = await http.get(Uri.parse(apiUrl));
@@ -167,7 +105,7 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
       parsedResponseCM = json.decode(jsonResponse);
 
       // 데이터 처리
-      print('서버로부터 받은 데이터~: $jsonResponse');
+      print('서버로부터 받은 데이터(댓글): $jsonResponse');
 
       isComment = true;
       comments = parsedResponseCM.length;
@@ -181,7 +119,7 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
   }
 
   // 댓글 저장하기 (POST)
-  void saveComment(String aToken, String content) async {
+  void saveComment(String aToken,String content) async {
 
     // 요청 본문 데이터
     var data = {
@@ -194,7 +132,7 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
       'Content-Type': 'application/json', // 예: JSON 요청인 경우 헤더 설정
     };
 
-    var url = Uri.parse('http://3.38.1.125:8080/memorial/comment?postId=${main.postId.toString()}'); // 엔드포인트 URL 설정
+    var url = Uri.parse('http://3.38.1.125:8080/memorial/comment?postId=${lwatch.selectedPostId.toString()}'); // 엔드포인트 URL 설정
 
     try {
       var response = await http.post(
@@ -218,6 +156,7 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
         setState(() {
         });
 
+
         print('API 호출 성공!!: ${response.statusCode}');
       } else {
         // 요청 실패 시의 처리
@@ -229,7 +168,92 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
     }
   }
 
-  int comIndex = 0; // 삭제할 댓글 인덱스
+  // 좋아요 누르기(POST)
+  void sendPostRequest(String aToken) async {
+    // API 엔드포인트 URL
+    String apiUrl = 'http://3.38.1.125:8080/memorial/like?postId=${lwatch.selectedPostId.toString()}'; // 실제 API 엔드포인트로 변경하세요
+
+    // POST 요청 보내기e
+    var response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {
+        'Authorization': 'Bearer $aToken', // 예: 인증 토큰을 추가하는 방법
+        'Content-Type': 'application/json', // 예: JSON 요청인 경우 헤더 설정
+        //'Content-Type': 'application/json',
+      }, // 요청 헤더에 Content-Type 설정
+    );
+
+    // HTTP 응답 상태 확인
+    if (response.statusCode == 200) {
+      // 응답 데이터 처리
+      print('서버로부터 받은 내용 데이터: ${response.body}');
+      var jsonResponse = utf8.decode(response.bodyBytes);
+
+      setState(() {});
+      // print('서버로부터 받은 데이터: ${response.body}');
+    } else {
+      // 요청이 실패한 경우 오류 처리
+      print('HTTP 요청 실패: ${response.statusCode}');
+    }
+  }
+
+  // 좋아요 가져오기- 클릭여부 확인(GET)
+  void fetchDataLike(String aToken) async {
+    // API 엔드포인트 URL
+    String apiUrl = 'http://3.38.1.125:8080/memorial/like?postId=${lwatch.selectedPostId.toString()}'; /// postId=1 추후에 바꿔주기
+
+    // 헤더 정보 설정
+    Map<String, String> headers = {
+      'Authorization': 'Bearer $aToken', // 예: 인증 토큰을 추가하는 방법
+      'Content-Type': 'application/json', // 예: JSON 요청인 경우 헤더 설정
+    };
+
+    // HTTP GET 요청 보내기
+    var response = await http.get(
+      Uri.parse(apiUrl),
+      headers: headers, // 헤더 추가
+    );
+
+    ///var jsonResponse = utf8.decode(response.bodyBytes);
+    // HTTP 응답 상태 확인
+    if (response.statusCode == 200) {
+      // 응답 데이터를 JSON 형식으로 디코딩
+      var data = json.decode(response.body);
+      var jsonResponse = utf8.decode(response.bodyBytes);
+
+      myHeart = json.decode(jsonResponse);
+
+      // 데이터 처리
+      print('좋아요~: $myHeart');
+      if(myHeart == true){
+        hearts = 1;
+      } else{
+        hearts = 0;
+      }
+
+      setState(() {
+      });
+
+    } else {
+      // 요청이 실패한 경우 오류 처리
+      print('HTTP 요청 실패: ${response.statusCode}');
+    }
+  }
+
+
+  @override
+  void initState() {
+    super.initState();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: [SystemUiOverlay.top]);
+    fetchWithHeaders(sign_in.userAccessToken);
+    fetchDataLike(sign_in.userAccessToken);
+
+    print("test" + lwatch.selectedPostId.toString());
+    fetchDataComment();
+    setState(() {
+
+    });
+  }
 
   // 댓글 삭제하기
   void deleteComment(String aToken, int commentId) async {
@@ -262,8 +286,9 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
     }
   }
 
+  int comIndex = 0; // 삭제할 댓글 인덱스
   // 댓글 삭제 팝업
-  void FlutterDialog2() {
+  void FlutterDialog() {
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
@@ -342,98 +367,6 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
     );
   }
 
-  // 좋아요 누르기(POST)
-  void sendPostRequest(String aToken) async {
-    // API 엔드포인트 URL
-    String apiUrl = 'http://3.38.1.125:8080/memorial/like?postId=${main.postId.toString()}'; // 실제 API 엔드포인트로 변경하세요
-
-    // POST 요청 보내기e
-    var response = await http.post(
-      Uri.parse(apiUrl),
-      headers: {
-        'Authorization': 'Bearer $aToken', // 예: 인증 토큰을 추가하는 방법
-        'Content-Type': 'application/json', // 예: JSON 요청인 경우 헤더 설정
-        //'Content-Type': 'application/json',
-      }, // 요청 헤더에 Content-Type 설정
-    );
-
-    // HTTP 응답 상태 확인
-    if (response.statusCode == 200) {
-      // 응답 데이터 처리
-      print('서버로부터 받은 내용 데이터: ${response.body}');
-      var jsonResponse = utf8.decode(response.bodyBytes);
-
-      setState(() {});
-      // print('서버로부터 받은 데이터: ${response.body}');
-    } else {
-      // 요청이 실패한 경우 오류 처리
-      print('HTTP 요청 실패: ${response.statusCode}');
-    }
-  }
-
-
-  // 좋아요 가져오기- 클릭여부 확인(GET)
-  void fetchDataLike(String aToken) async {
-    // API 엔드포인트 URL
-    String apiUrl = 'http://3.38.1.125:8080/memorial/like?postId=${main.postId.toString()}'; /// postId=1 추후에 바꿔주기
-
-    // 헤더 정보 설정
-    Map<String, String> headers = {
-      'Authorization': 'Bearer $aToken', // 예: 인증 토큰을 추가하는 방법
-      'Content-Type': 'application/json', // 예: JSON 요청인 경우 헤더 설정
-    };
-
-    // HTTP GET 요청 보내기
-    var response = await http.get(
-      Uri.parse(apiUrl),
-      headers: headers, // 헤더 추가
-    );
-
-    ///var jsonResponse = utf8.decode(response.bodyBytes);
-    // HTTP 응답 상태 확인
-    if (response.statusCode == 200) {
-      // 응답 데이터를 JSON 형식으로 디코딩
-      var data = json.decode(response.body);
-      var jsonResponse = utf8.decode(response.bodyBytes);
-
-      myHeart = json.decode(jsonResponse);
-
-      // 데이터 처리
-      print('좋아요: $myHeart');
-      // if(myHeart == true){
-      //   hearts++;
-      // } else{
-      //   if(hearts>=1){
-      //     hearts--;
-      //   }else{
-      //
-      //   }
-      //
-      // }
-
-      setState(() {
-      });
-
-    } else {
-      // 요청이 실패한 경우 오류 처리
-      print('HTTP 요청 실패: ${response.statusCode}');
-    }
-  }
-
-
-  @override
-  void initState() {
-    super.initState();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: [SystemUiOverlay.top]);
-    print("test" + main.postId.toString());
-    //fetchData();
-    fetchWithHeaders(sign_in.userAccessToken);
-    fetchDataComment();
-    fetchDataLike(sign_in.userAccessToken);
-    setState(() {
-    });
-  }
-
   // 댓글 위젯
   Widget listview_builder(){
     return ListView.builder(
@@ -473,20 +406,26 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
                         Container(width: 55,
                           child: Text(parsedResponseCM[index]['nickname'], style: textStyle.bk12normal,),),
                         SizedBox(width: 204,),
-                        Container(width: 78, height: 32,
-                          child: TextButton(onPressed: (){
-                            comIndex = parsedResponseCM[index]['id'];
-                            setState(() {
-                            });
-                            FlutterDialog2();
-                          }, child: Row(
-                            children: [
-                              Text("삭제하기", style: textStyle.grey12normal,),
-                              SvgPicture.asset('assets/images/memorial/deletecom.svg',),
-                            ],
-                          )
+                        if(parsedResponseCM[index]['nickname'] == home.user)...[
+                          Container(width: 78, height: 32,
+                            child: TextButton(onPressed: (){
+                              comIndex = parsedResponseCM[index]['id'];
+                              setState(() {
+                              });
+                              FlutterDialog();
+                            }, child: Row(
+                              children: [
+                                Text("삭제하기", style: textStyle.grey12normal,),
+                                SvgPicture.asset('assets/images/memorial/deletecom.svg',),
+                              ],
+                            )
+
+                            ),
                           ),
-                        ),
+
+                        ],
+
+
                       ],
                     ),
                     SizedBox(height: 6,),
@@ -526,109 +465,17 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
     return listHeight;
   }
 
-  // 글 삭제 팝업
-  void FlutterDialog() {
-    showDialog(
-        context: context,
-        builder: (_) => new AlertDialog(
-          shape: RoundedRectangleBorder(
-              borderRadius:
-              BorderRadius.all(
-                  Radius.circular(12.0))),
-          content: Builder(
-            builder: (context) {
-
-              return Container(
-                  height: 298,
-                  width: 412,
-                  child:
-                  Padding(padding: EdgeInsets.all(0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        SizedBox(height: 12,),
-                        Container(
-                          width: 125,
-                          height: 117,
-                          child: SvgPicture.asset(
-                            'assets/images/no_result.svg',
-                            width: 132,
-                            height: 123,
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                        SizedBox(height: 32,),
-                        Text("글을 삭제 하시겠어요?",style: textStyle.bk16bold,),
-                        SizedBox(height: 8,),
-                        Text("삭제한 후, 내용이 복구되지 않아요!", style: textStyle.bk14normal,),
-                        SizedBox(height: 32,),
-                        Row(
-                          children: [
-                            Container(
-                              height: 40,
-                              width: 120,
-                              child: ElevatedButton(
-                                child: new Text("취소", style: textStyle.purple16midium),
-                                style: buttonChart().purplebtn3,
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                              ),
-                            ),
-                            SizedBox(width: 16,),
-                            Container(
-                              height: 40,
-                              width: 120,
-                              child: ElevatedButton(
-                                child: new Text("삭제하기", style: textStyle.white16semibold),
-                                style: buttonChart().purplebtn,
-                                onPressed: () {
-
-                                  // 서버에 전송
-                                  deleteContent(sign_in.userAccessToken);
-                                  setState(() {});
-
-                                  // 이 사용자의 함께할개 홈으로 돌아가야함
-                                  Navigator.pop(context);
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => MyScreenPage(title: '홈페이지 이동')));
-                                },
-                              ),
-                            ),
-                          ],
-                        )
-                      ],
-                    ),)
-              );
-            },
-          ),
-        )
-    );
-  }
-
 
   @override
   Widget build(BuildContext context) {
+    MediaQueryData deviceData = MediaQuery.of(context);
+    Size screenSize = deviceData.size;
     return Scaffold(
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(72),
           child: AppBar(
-            actions: <Widget>[
-              Padding(padding: EdgeInsets.only(top:15),
-                child: new IconButton(
-                  icon:SvgPicture.asset(
-                    'assets/images/memorial/delete.svg',),
-                  onPressed: (){
-                    // 삭제 팝업
-                    FlutterDialog();
-                  },
-                ),
-              ),
-
-            ],
-            leading: Padding(
+            leading:
+            Padding(
               padding: EdgeInsets.only(top: 20),
               child: IconButton(
                 icon: Icon(Icons.arrow_back_ios_rounded, color: Colors.black),
@@ -637,6 +484,23 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
             ),
             backgroundColor: Color(0xffDDE7FD),
             elevation: 0.0,
+            title:
+            Container(
+                height: 50,
+                width: screenSize.width,
+                child: Column(
+                  children: [
+                    SizedBox(height: 24,),
+                    Center(
+                        child: Padding(
+                          padding: EdgeInsets.only(right: 60),
+                          child: Text(
+                            '함께할개',
+                            style: textStyle.bk20normal,
+                          ),
+                        )),
+                  ],
+                )),
             iconTheme: IconThemeData(color: Colors.black),
           ),
         ),
@@ -645,8 +509,6 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
           width: Get.width,
           height: Get.height,
           child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(
-            ),
             padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
             scrollDirection: Axis.vertical,
             child: Column(
@@ -657,7 +519,7 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
                     borderRadius: BorderRadius.only(topLeft: Radius.circular(16.0), topRight: Radius.circular(16.0)),
                     child:  Container(
                       width: Get.width,
-                      //height: 576,
+                      //height: 578,
                       color: Colors.white,
                       child:
                       Column(
@@ -668,65 +530,136 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
                               children: [
                                 Container(
                                   width: Get.width,
-                                  height: Get.width -32,
-                                  child:  ClipRRect(
-                                    borderRadius: BorderRadius.circular(16.0),
-                                    child:
-                                    ImageSlideshow(
-                                      indicatorColor: Color(0xffFEFBAC),
-                                      onPageChanged: (value) {
-                                        debugPrint('Page changed: $value');
-                                      },
-                                      //autoPlayInterval: 3000,
-                                      isLoop: false,
-                                      children: [
-                                        for(int i= 0; i<parsedResponseIMGS.length; i++)
-                                          Stack(
+                                  height: Get.width - 32,
+                                  child: Stack(
+                                    children: [
+                                      Container(
+                                        width: Get.width,
+                                        height: Get.width - 32,
+                                        child:
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(16.0),
+                                          child:
+                                          ImageSlideshow(
+                                            indicatorColor: Color(0xffFEFBAC),
+                                            onPageChanged: (value) {
+                                              debugPrint('Page changed: $value');
+                                            },
+                                            //autoPlayInterval: 3000,
+                                            isLoop: false,
                                             children: [
-                                              Container(
-                                                width: Get.width,
-                                                height: Get.width - 32,
-                                                child:
-                                                Image(
-                                                  image: NetworkImage(parsedResponseIMGS[i], ),
-                                                  fit: BoxFit.cover,
-                                                  errorBuilder: (context, error, stackTrace) {
-                                                    // 오류 발생 시 대체 이미지를 표시
-                                                    return SvgPicture.asset(
-                                                      'assets/images/no_result.svg',);
-                                                  },
-                                                )
-                                                //Image.network(parsedResponseIMGS[i], fit: BoxFit.cover,),
-                                              ),
-                                              Padding(
-                                                padding: EdgeInsets.only(left: 300, top: 10),
-                                                child: Container(
-                                                    decoration: BoxDecoration(
-                                                      color: Color(0xffDDE7FD).withOpacity(0.6),
-                                                      borderRadius: BorderRadius.circular(32),
+                                              for(int i= 0; i<parsedResponseIMGS.length; i++)
+                                                Stack(
+                                                  children: [
+                                                    Container(
+                                                      width: Get.width,
+                                                      height: Get.width - 32,
+                                                      child: Image.network(parsedResponseIMGS[i], fit: BoxFit.cover,),),
+                                                    Padding(
+                                                      padding: EdgeInsets.only(left: 300, top: 10),
+                                                      child: Container(
+                                                          decoration: BoxDecoration(
+                                                            color: Color(0xffDDE7FD).withOpacity(0.6),
+                                                            borderRadius: BorderRadius.circular(32),
+                                                          ),
+                                                          // color: Colors.white.withOpacity(0.7),
+                                                          width: 41,
+                                                          height: 19,
+                                                          child: Center(
+                                                            child: Text('${i+1} / ${parsedResponseIMGS.length}',style: textStyle.white14light,),
+                                                          )
+                                                      ),
                                                     ),
-                                                    // color: Colors.white.withOpacity(0.7),
-                                                    width: 41,
-                                                    height: 19,
-                                                    child: Center(
-                                                      child: Text('${i+1} / ${parsedResponseIMGS.length}',style: textStyle.white14light,),
-                                                    )
-                                                ),
-                                              ),
+
+                                                  ],
+                                                )
 
                                             ],
-                                          )
+                                          ),
+                                          //Image.network(lwatch.selectedOthersImage, fit: BoxFit.cover,),
+                                        ),
+                                        // Image.network(lwatch.selectedOthersImage, fit: BoxFit.cover,),
+                                      ),
+                                      InkWell(
+                                        onTap: (){
+                                          lwatch.selectedUser = parsedResponseCN['userUid'];
+                                          // Navigator.push(
+                                          //     context,
+                                          //     MaterialPageRoute(
+                                          //         builder: (context) => OthersMemorialMainPage()));
+                                        },
+                                        child: Padding(
+                                          padding: EdgeInsets.only(left: 10, top: 10),
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              color: Colors.black.withOpacity(0.2),
+                                              borderRadius: BorderRadius.circular(32),
+                                            ),
+                                            // color: Colors.white.withOpacity(0.7),
+                                            width: 90,
+                                            height: 32,
+                                            child: Row(
+                                              children: [
+                                                SizedBox(width: 6,),
+                                                if(lwatch.selectedOthersProfileImage.toString() == "null")...[
+                                                  CircleAvatar(
+                                                    backgroundColor: Colors.white,
+                                                    radius: 10,
+                                                    child: CircleAvatar(
+                                                      child: SvgPicture.asset('assets/images/user_null2.svg',),
+                                                      radius: 9,
+                                                    ),
+                                                  ),
+                                                ]else...[
+                                                  CircleAvatar(
+                                                    backgroundColor: Colors.white,
+                                                    radius: 10,
+                                                    child: CircleAvatar(
+                                                      radius: 9,
+                                                      backgroundImage: NetworkImage(lwatch.selectedOthersProfileImage.toString()),
+                                                    ),
+                                                  ),
+                                                ],
+                                                // CircleAvatar(
+                                                //   backgroundColor: Colors.white,
+                                                //   radius: 10,
+                                                //   child: CircleAvatar(
+                                                //     radius: 9,
+                                                //     backgroundImage: NetworkImage(lwatch.selectedOthersProfileImage.toString(),),
+                                                //   ),
+                                                // ),
 
-                                      ],
-                                    ),
-                                    //Image.network(main.selectedImage, fit: BoxFit.cover,),
+                                                SizedBox(width: 5,),
+                                                Container(
+                                                  width: 37,
+                                                  child:Text(lwatch.selectedOthersNickaname,
+                                                    overflow: TextOverflow.ellipsis, // "..."으로 표시
+                                                    maxLines: 1, // 원하는 줄 수로 설정
+                                                    style: TextStyle(color: Colors.white, fontSize: 14, fontFamily: 'Pretendard',fontWeight: FontWeight.w600,),),
+                                                ),
+                                                SizedBox(width: 5,),
+                                                Container(
+                                                  width: 11,
+                                                  child:
+                                                  Icon(Icons.arrow_forward_ios_rounded, color: Colors.white,size: 12,),
+                                                  // SvgPicture.asset(
+                                                  //   'assets/images/memorial/blue_arrow.svg',
+                                                  //   //fit: BoxFit.cover,
+                                                  // ),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    ],
                                   ),
                                 ),
-                                SizedBox(height: 16,),
+                                SizedBox(height: 15,),
                                 Row(
                                   children: [
                                     Container(
-                                      width: 145,
+                                      width: 120,
                                       height: 32,
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -737,7 +670,7 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
                                         ],
                                       ),
                                     ),
-                                    SizedBox(width: 125,),
+                                    SizedBox(width: 150,),
                                     Row(
                                       children: [
                                         Container(
@@ -754,12 +687,14 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
                                         SizedBox( width: 10,),
                                         if(hearts >= 1)...[
                                           Container(
+                                            // width: 22,
+                                            // height: 22,
                                             child: InkWell(
                                               onTap: (){
                                                 // 좋아요 누르기
                                                 sendPostRequest(sign_in.userAccessToken);
-                                                //fetchDataLike(sign_in.userAccessToken);
-                                                hearts--;
+                                                // fetchDataLike(sign_in.userAccessToken);
+                                                hearts= 0;
                                                 setState(() {
                                                 });
                                               },
@@ -770,12 +705,14 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
                                         ] else...[
                                           SizedBox(width: 2,),
                                           Container(
+                                            // width: 22,
+                                            // height: 22,
                                             child: InkWell(
                                               onTap: (){
                                                 // 좋아요 누르기
                                                 sendPostRequest(sign_in.userAccessToken);
-                                                //fetchDataLike(sign_in.userAccessToken);
-                                                hearts++;
+                                                // fetchDataLike(sign_in.userAccessToken);
+                                                hearts= 1;
                                                 setState(() {
                                                 });
                                               },
@@ -790,17 +727,16 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
                                       ],
                                     )
 
-
                                   ],
                                 ),
-                                SizedBox(height: 16,),
+                                SizedBox(height: 15,),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(parsedResponseCN['title'],style: textStyle.bk16semibold,),
                                     SizedBox(height: 8,),
                                     Container(width: Get.width,
-                                      //height: 30,
+                                      //height: 50,
                                       child: Text(parsedResponseCN['content'], style: textStyle.bk14normal,),
                                     ),
                                     SizedBox(height: 8,),
@@ -822,21 +758,22 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
 
                   SizedBox(height: 4,),
                   Container(
-                    width: Get.width,
-                    height: calculateListViewHeight() + 86,
-                    child: Column(
-                      children: [
-                        Expanded(
-                            child: Column(
-                              children: [
-                                listview_builder()
-                              ],
-                            )
-                        ),
-                      ],
-                    )
+                      width: Get.width,
+                      height: calculateListViewHeight() + 86,
+                      child: Column(
+                        children: [
+                          Expanded(
+                              child: Column(
+                                children: [
+                                  listview_builder(),
+                                ],
+                              )
+                          ),
+                        ],
+                      )
                   ),
-                ]
+
+                ],
 
               ],
             ),
@@ -850,7 +787,7 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children:[
               Container(
-                color: Color(0xffF2F4F6),
+                color:Color(0xffF2F4F6),
                 height: 48,
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 8.0, top: 8.0, left: 16,right: 16),
@@ -861,14 +798,14 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
                         height: 48,
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          border: Border.all(color: addComment? Color(colorChart.blue):Color(0xffC0D2FC)),
+                          border: Border.all(color: setComment?Color(colorChart.blue):Color(0xffC0D2FC)),
                           borderRadius: BorderRadius.circular(30),
                         ),
                       ),
                       Positioned(
                         left: 15,
                         right: 30,
-                        bottom:-4,
+                        bottom: -4,
                         child: TextField(
                           textAlignVertical: TextAlignVertical.center,
                           maxLines: 1,
@@ -876,10 +813,11 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
                           style: textStyle.bk14normal,
                           decoration: InputDecoration(
                               hintStyle: textStyle.grey14normal,
-                              border: InputBorder.none, hintText: '댓글을 입력하려면 여기를 탭하세요.'),
+                              border: InputBorder.none,
+                              hintText: '댓글을 입력하려면 여기를 탭하세요.'),
                           onChanged: (s) {
                             //text = s;
-                            addComment = true;
+                            setComment = true;
                             setState(() {
 
                             });
@@ -896,21 +834,17 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
                         top: 3,
                         child: ElevatedButton(
                             onPressed: () {
-                              if(addComment){
-                                saveComment(sign_in.userAccessToken, myController.text);
-                              }
-                              addComment = false;
+                              saveComment(sign_in.userAccessToken, myController.text);
                               setState(() {
                               });
+
                               myController.clear();
                               Timer(Duration(milliseconds: 500), () {
                                 fetchDataComment();
                               });
-                              setState(() {
-                              });
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: addComment?Color(colorChart.blue):Color(0xffDDE7FD),
+                              backgroundColor: setComment? Color(colorChart.blue):Color(0xffDDE7FD),
                               fixedSize: const Size(23, 23),
                               shape: const CircleBorder(),
                             ),
@@ -920,7 +854,7 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
                     ],
                   ),
                 ),
-              )
+              ),
             ],
           ),
         )

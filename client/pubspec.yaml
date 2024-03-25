@@ -9,15 +9,50 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cloud_firestore: ^4.7.0
-  custom_navigation_bar: ^0.8.2
-  firebase_auth: ^4.6.0
-  firebase_core: ^2.12.0
+  exif: ^3.1.4
+
+  http: ^0.13.3
+
+
   cupertino_icons: ^1.0.2
+  get: ^4.6.5
+  flutter_scatter: ^0.2.0
+  word_cloud: ^1.0.1
+  #image_picker: ^1.0.2
+  image_picker: ^0.8.4+2
+  dio: ^4.0.6
+
+  #flutter_secure_storage: ^9.0.0
+  firebase_core: ^2.15.1
+  firebase_auth: ^4.9.0
+
   google_sign_in: ^6.1.0
-  http: ^0.13.6
-  flutter_native_splash: ^2.2.19
-  change_app_package_name: ^1.1.0
+
+  flutter_svg: ^1.0.1
+
+  intl: ^0.17.0
+  fluttertoast: ^8.2.2
+  flutter_animation_progress_bar: ^2.3.1
+
+  flutter_local_notifications: ^16.1.0
+  flutter_exif_rotation: ^0.4.1
+  permission_handler: ^8.3.0
+
+  flutter_image_slideshow: ^0.1.6
+
+  just_audio: ^0.9.35
+
+  animated_text_kit: ^4.2.2
+  flutter_spinkit: ^5.2.0
+  delayed_display: ^2.0.0
+
+  flutter_gif: ^0.0.4
+
+  path_provider: ^2.0.14
+
+  flutter_launcher_icons: ^0.13.1
+
+  input_slider: ^0.3.1
 
 #  assets:
 #    - images/conversation_button.png
@@ -32,6 +67,9 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/conversation_button.png
+    - assets/images/logo/pup_logo.svg
+    - assets/images/logo/testlogo.svg
+    - assets/images/logo/logotest.svg
     - assets/images/illust_test.png
     - assets/images/background_test.png
     - assets/images/left_arrow.png
@@ -44,5 +82,531 @@ flutter:
     - assets/images/con1_button.png
     - assets/images/home_right_arrow.png
     - assets/images/proto_recommend1.png
+
+    - assets/images/bottom_navigation/home.png
+    - assets/images/bottom_navigation/help.png
+    - assets/images/bottom_navigation/gallery.png
+    - assets/images/bottom_navigation/my_page.png
+    - assets/images/bottom_navigation/feed.png
+    - assets/images/logo/pupmory_logo.png
+    - assets/images/logo/pupmory_logo2.png
+    - assets/images/logo/home_main_logo.png
+    - assets/images/logo/changed_logo.png
+    - assets/images/logo/google_logo.png
+    - assets/images/logo/pupmory_logo3.svg
+    - assets/images/home/conversation_button.png
+    - assets/images/home/home_image1.png
+    - assets/images/home/help_main.png
+    - assets/images/user_null.svg
+    - assets/images/user_null2.svg
+    - assets/images/home/home_img_main.svg
+    - assets/images/home/help_main.svg
+    - assets/images/home/home_main_logo.svg
+    - assets/images/home/home_illust1.svg
+    - assets/images/home/go_icon.svg
+    - assets/images/home/go_icon1.svg
+    - assets/images/home/home_muji.svg
+    - assets/images/home/home_muji.gif
+    - assets/images/home/home_muji2.gif
+    - assets/images/home/lev1.svg
+    - assets/images/home/lev2.svg
+    - assets/images/home/lev3.svg
+    - assets/images/home/lev4.svg
+    - assets/images/help/help_heart.svg
+    - assets/images/help/help_request.png
+    - assets/images/help/help_pop_up.png
+    - assets/images/help/help_record_button.png
+    - assets/images/help/introduce_request_help.png
+    - assets/images/help/introduce_ask_help.png
+    - assets/images/help/introduce_send_help.png
+    - assets/images/help/no_help.svg
+    - assets/images/help/no_send_help.svg
+    - assets/images/help/ask_help.svg
+    - assets/images/help/send_help.svg
+    - assets/images/help/help_count_y.svg
+    - assets/images/help/help_count_n.svg
+    - assets/images/help/send_help.svg
+    - assets/images/help/attention.svg
+    - assets/images/help/dropdown_down.svg
+    - assets/images/help/dropdown_up.svg
+    - assets/images/help/sendmuji.svg
+    - assets/images/help/write_help_muji.svg
+    - assets/images/help/no_send.svg
+    - assets/images/memorial/camera.png
+    - assets/images/memorial/memorial_upload.png
+    - assets/images/memorial/memorial_write.png
+    - assets/images/memorial/heart.png
+    - assets/images/memorial/comment.png
+    - assets/images/memorial/look_others_arrow.png
+    - assets/images/memorial/character_head.png
+    - assets/images/memorial/wordcloud.jpg
+    - assets/images/memorial/more_memorial.png
+    - assets/images/memorial/more_memorial.svg
+    - assets/images/memorial/paw.svg
+    - assets/images/memorial/blue_arrow.svg
+    - assets/images/memorial/white_heart.png
+    - assets/images/memorial/no_result.svg
+    - assets/images/no_result.svg
+    - assets/images/memorial/upload_icon.png
+    - assets/images/memorial/image_rep.svg
+    - assets/images/memorial/upload_button.svg
+    - assets/images/memorial/private.svg
+    - assets/images/memorial/upload_icon.svg
+    - assets/images/memorial/upload_icon2.svg
+    - assets/images/memorial/heart-fill.svg
+    - assets/images/memorial/heart-empty.svg
+    - assets/images/memorial/comments.svg
+    - assets/images/memorial/reset.svg
+    - assets/images/memorial/memorial_img.svg
+    - assets/images/memorial/foot.svg
+    - assets/images/memorial/delete_bt.svg
+    - assets/images/memorial/cloud.svg
+    - assets/images/memorial/help_btn2.svg
+    - assets/images/memorial/delete.svg
+    - assets/images/memorial/deletecom.svg
+    - assets/images/home/help_page.png
+    - assets/images/home/arrow.svg
+    - assets/images/home/con_btn.svg
+    - assets/images/home/con_btn2.svg
+    - assets/images/home/con_btn2.png
+    - assets/images/home/conbtn.svg
+    - assets/images/home/cl_con.svg
+    - assets/images/home/after_con.svg
+    - assets/images/home/btnframe.svg
+    - assets/images/cancel_icon.svg
+    - assets/images/conversation/home_icon.svg
+    - assets/images/conversation/bubble.svg
+    - assets/images/conversation/con_tail.svg
+    - assets/images/conversation/muji1.svg
+    - assets/images/conversation/user.svg
+    - assets/images/conversation/user2.svg
+    - assets/images/conversation/user3.svg
+    - assets/images/conversation/user4.svg
+    - assets/images/conversation/user5.svg
+    - assets/images/conversation/user6.svg
+    - assets/images/conversation/user7.svg
+    - assets/images/conversation/shadow.svg
+    - assets/images/conversation/user_hand.svg
+    - assets/images/conversation/intro/miss.svg
+    - assets/images/conversation/intro/grief.svg
+    - assets/images/conversation/intro/intro_cloud.svg
+    - assets/images/conversation/intro/intro_star.svg
+    - assets/images/conversation/intro/intro_bubble.svg
+    - assets/images/conversation/early/yes.svg
+    - assets/images/conversation/early/no.svg
+    - assets/images/conversation/middle/good.svg
+    - assets/images/conversation/middle/good_un.svg
+    - assets/images/conversation/middle/little.svg
+    - assets/images/conversation/middle/little_un.svg
+    - assets/images/conversation/middle/hard.svg
+    - assets/images/conversation/middle/hard_un.svg
+    - assets/images/conversation/middle/cool.svg
+    - assets/images/conversation/middle/cool_min.svg
+    - assets/images/conversation/middle/rainy.svg
+    - assets/images/conversation/middle/rainy_min.svg
+    - assets/images/conversation/middle/sunny_min.svg
+    - assets/images/conversation/middle/sunny.svg
+    - assets/images/conversation/middle/snow.svg
+    - assets/images/conversation/middle/snow_min.svg
+    - assets/images/conversation/middle/sno.svg
+    - assets/images/conversation/middle/sun.svg
+    - assets/images/conversation/middle/realmuji.svg
+    - assets/images/conversation/middle/myletter.svg
+    - assets/images/conversation/con_muji.svg
+    - assets/images/conversation/con_user.svg
+    - assets/images/conversation/con_user_desk.svg
+    - assets/images/conversation/con_desk.svg
+    - assets/images/conversation/gif/muji_base.gif
+    - assets/images/conversation/gif/muji_base_eye.gif
+    - assets/images/conversation/gif/muji_ear.gif
+    - assets/images/conversation/gif/muji_mouth1.gif
+    - assets/images/conversation/gif/think_mouth.gif
+    - assets/images/conversation/gif/think_muji.gif
+    - assets/images/conversation/gif/think_back.gif
+    - assets/images/conversation/gif/think_face.gif
+    - assets/images/conversation/gif/think_body.gif
+    - assets/images/conversation/gif/think_eye.gif
+    - assets/images/conversation/gif/think_ear.gif
+    - assets/images/conversation/gif/sad_muji.gif
+    - assets/images/conversation/gif/smile_muji.gif
+    - assets/images/conversation/gif/thinking1.gif
+    - assets/images/sign/google_logo.svg
+    - assets/images/appbar/home.svg
+    - assets/images/appbar/memorial.svg
+    - assets/images/appbar/my.svg
+    - assets/images/conversation/end/add_btn.svg
+    - assets/images/conversation/end/paper.svg
+    - assets/images/conversation/end/future.svg
+    - assets/images/conversation/end/one.svg
+    - assets/images/conversation/end/two.svg
+    - assets/images/conversation/end/three.svg
+    - assets/images/conversation/end/five.svg
+    - assets/images/conversation/end/future.png
+    - assets/images/conversation/end/sc1.png
+    - assets/images/conversation/end/sc2.png
+    - assets/images/conversation/done_cloud.svg
+    - assets/images/conversation/done_con.svg
+    - assets/images/conversation/done_drop.svg
+    - assets/images/appbar/together.svg
+    - assets/images/mypage/announce.svg
+    - assets/images/mypage/comment.svg
+    - assets/images/mypage/help.svg
+    - assets/images/mypage/setting.png
+    - assets/images/mypage/smart.svg
+    - assets/images/mypage/cloud.png
+    - assets/images/story/background.png
+    - assets/images/story/background2.png
+    - assets/images/story/board1.png
+    - assets/images/story/board2.png
+    - assets/images/story/bbk1.png
+    - assets/images/story/bbk2.png
+    - assets/images/story/bbkcloud.png
+    - assets/images/story/muji.svg
+    - assets/images/story/muji3.svg
+    - assets/images/story/st1.svg
+    - assets/images/story/st2.svg
+    - assets/images/story/st3.svg
+    - assets/images/story/st4.svg
+    - assets/images/story/st5.svg
+    - assets/images/story/st6.svg
+    - assets/images/story/st7.svg
+    - assets/images/story/st8.svg
+    - assets/images/story/st9.svg
+    - assets/images/conversation/intro/coach1.svg
+    - assets/images/conversation/intro/screen1.png
+    - assets/images/conversation/intro/iscreen1.png
+    - assets/images/conversation/intro/iscreen2.png
+    - assets/images/conversation/intro/iscreen3.png
+    - assets/images/conversation/intro/iscreen4.png
+    - assets/images/conversation/intro/coach3.svg
+    - assets/images/conversation/intro/coach01.svg
+    - assets/images/conversation/intro/screen01.svg
+    - assets/images/conversation/intro/sc1.png
+    - assets/images/conversation/intro/sc01.svg
+    - assets/images/conversation/intro/sc001.svg
+    - assets/images/conversation/intro/scr01.svg
+    - assets/images/conversation/early/screen01.png
+    - assets/images/conversation/early/screen02.png
+    - assets/images/conversation/early/screen03.png
+    - assets/images/conversation/early/screen04.png
+
+    - assets/voice/intro/intro1.mp3
+    - assets/voice/intro/intro2.mp3
+    - assets/voice/intro/intro3.mp3
+    - assets/voice/intro/intro4.mp3
+    - assets/voice/intro/intro5.mp3
+    - assets/voice/intro/intro6.mp3
+    - assets/voice/intro/intro7.mp3
+    - assets/voice/intro/intro8.mp3
+    - assets/voice/intro/intro9.mp3
+    - assets/voice/intro/intro10.mp3
+    - assets/voice/intro/intro11.mp3
+    - assets/voice/intro/intro12.mp3
+    - assets/voice/intro/intro13.mp3
+    - assets/voice/intro/intro14.mp3
+    - assets/voice/intro/intro15.mp3
+    - assets/voice/intro/intro16.mp3
+    - assets/voice/intro/intro17.mp3
+    - assets/voice/intro/intro_grief1.mp3
+    - assets/voice/intro/intro_grief2.mp3
+    - assets/voice/intro/intro_grief3.mp3
+    - assets/voice/intro/intro_grief4.mp3
+    - assets/voice/intro/intro_grief5.mp3
+    - assets/voice/intro/intro_miss1.mp3
+    - assets/voice/intro/intro_miss2.mp3
+    - assets/voice/intro/intro_miss3.mp3
+    - assets/voice/intro/intro_miss4.mp3
+    - assets/voice/intro/intro2_1.mp3
+    - assets/voice/intro/intro2_2.mp3
+    - assets/voice/intro/intro2_3.mp3
+    - assets/voice/intro/intro2_4.mp3
+    - assets/voice/intro/intro2_5.mp3
+    - assets/voice/intro/intro2_6.mp3
+    - assets/voice/intro/intro2_7.mp3
+    - assets/voice/intro/intro2_8.mp3
+    - assets/voice/intro/intro2_9.mp3
+    - assets/voice/start1.mp3
+    - assets/voice/yes.mp3
+    - assets/voice/no1.mp3
+    - assets/voice/no2.mp3
+    - assets/voice/early/memory/memory1.mp3
+    - assets/voice/early/memory/memory2.mp3
+    - assets/voice/early/memory/memory3.mp3
+    - assets/voice/early/memory/memory4.mp3
+    - assets/voice/early/memory/memory5.mp3
+    - assets/voice/early/memory/memory6.mp3
+    - assets/voice/early/memory/memory7.mp3
+    - assets/voice/early/memory/memory8.mp3
+    - assets/voice/early/memory/memory9.mp3
+    - assets/voice/early/memory/memory10.mp3
+    - assets/voice/early/memory/memory11.mp3
+    - assets/voice/early/memory/memory12.mp3
+    - assets/voice/early/memory/memory13.mp3
+    - assets/voice/early/memory/memory14.mp3
+    - assets/voice/early/memory/memory15.mp3
+    - assets/voice/early/memory/memoryhappy1.mp3
+    - assets/voice/early/memory/memoryhappy2.mp3
+    - assets/voice/early/memory/memoryhappy3.mp3
+    - assets/voice/early/memory/memoryhappy4.mp3
+    - assets/voice/early/memory/memoryhappy5.mp3
+    - assets/voice/early/memory/memoryhappy6.mp3
+    - assets/voice/early/memory/memoryhappy7.mp3
+    - assets/voice/early/memory/memoryhappy8.mp3
+    - assets/voice/early/memory/memoryhappy9.mp3
+    - assets/voice/early/memory/memoryhappy10.mp3
+    - assets/voice/early/memory/memoryhappy11.mp3
+    - assets/voice/early/memory/memorysad1.mp3
+    - assets/voice/early/memory/memorysad2.mp3
+    - assets/voice/early/memory/memorysad3.mp3
+    - assets/voice/early/memory/memorysad4.mp3
+    - assets/voice/early/memory/memorysad5.mp3
+    - assets/voice/early/memory/memorysad6.mp3
+    - assets/voice/early/memory/memorysad7.mp3
+    - assets/voice/early/farewell/farewell1.mp3
+    - assets/voice/early/farewell/farewell2.mp3
+    - assets/voice/early/farewell/farewell3.mp3
+    - assets/voice/early/farewell/farewell3-1.mp3
+    - assets/voice/early/farewell/farewell3-2.mp3
+    - assets/voice/early/farewell/farewell_modi.mp3
+    - assets/voice/early/farewell/farewell4.mp3
+    - assets/voice/early/farewell/farewell5.mp3
+    - assets/voice/early/farewell/farewell6.mp3
+    - assets/voice/early/farewell/farewell7.mp3
+    - assets/voice/early/farewell/farewell8.mp3
+    - assets/voice/early/farewell/farewell9.mp3
+    - assets/voice/early/farewell/farewell10.mp3
+    - assets/voice/early/farewell/farewell11.mp3
+    - assets/voice/early/farewell/farewell12.mp3
+    - assets/voice/early/farewell/regno1.mp3
+    - assets/voice/early/farewell/regno2.mp3
+    - assets/voice/early/farewell/regno3.mp3
+    - assets/voice/early/farewell/regno4.mp3
+    - assets/voice/early/farewell/regno5.mp3
+    - assets/voice/early/farewell/regno6.mp3
+    - assets/voice/early/farewell/regno7.mp3
+    - assets/voice/early/farewell/regno8.mp3
+    - assets/voice/early/farewell/regno9.mp3
+    - assets/voice/early/farewell/regno10.mp3
+    - assets/voice/early/farewell/regno11.mp3
+    - assets/voice/early/farewell/regno12.mp3
+    - assets/voice/early/farewell/regyes1.mp3
+    - assets/voice/early/farewell/regyes2.mp3
+    - assets/voice/early/farewell/regyes3.mp3
+    - assets/voice/early/farewell/regyes4.mp3
+    - assets/voice/early/farewell/regyes5.mp3
+    - assets/voice/early/farewell/regyes6.mp3
+    - assets/voice/early/farewell/regyes7.mp3
+    - assets/voice/early/farewell/regyes8.mp3
+    - assets/voice/early/farewell/regyes9.mp3
+    - assets/voice/early/farewell/endfarewell1.mp3
+    - assets/voice/early/farewell/endfarewell2.mp3
+    - assets/voice/early/farewell/endfarewell3.mp3
+    - assets/voice/middle/sadness/start1.mp3
+    - assets/voice/middle/sadness/start2.mp3
+    - assets/voice/middle/sadness/start3.mp3
+    - assets/voice/middle/sadness/start4.mp3
+    - assets/voice/middle/sadness/start5.mp3
+    - assets/voice/middle/sadness/start6.mp3
+    - assets/voice/middle/sadness/start7.mp3
+    - assets/voice/middle/sadness/good1.mp3
+    - assets/voice/middle/sadness/good2.mp3
+    - assets/voice/middle/sadness/good3.mp3
+    - assets/voice/middle/sadness/good4.mp3
+    - assets/voice/middle/sadness/little1.mp3
+    - assets/voice/middle/sadness/little2.mp3
+    - assets/voice/middle/sadness/little3.mp3
+    - assets/voice/middle/sadness/little4.mp3
+    - assets/voice/middle/sadness/little_1.mp3
+    - assets/voice/middle/sadness/little_2.mp3
+    - assets/voice/middle/sadness/little_3.mp3
+    - assets/voice/middle/sadness/little_4.mp3
+    - assets/voice/middle/sadness/hard1.mp3
+    - assets/voice/middle/sadness/hard2.mp3
+    - assets/voice/middle/sadness/hard3.mp3
+    - assets/voice/middle/sadness/next1.mp3
+    - assets/voice/middle/sadness/next2.mp3
+    - assets/voice/middle/sadness/next3.mp3
+    - assets/voice/middle/sadness/next4.mp3
+    - assets/voice/middle/sadness/sad1.mp3
+    - assets/voice/middle/sadness/sad2.mp3
+    - assets/voice/middle/sadness/sad3.mp3
+    - assets/voice/middle/sadness/endure1.mp3
+    - assets/voice/middle/sadness/endure2.mp3
+    - assets/voice/middle/sadness/endure3.mp3
+    - assets/voice/middle/sadness/endure4.mp3
+    - assets/voice/middle/sadness/endure5.mp3
+    - assets/voice/middle/sadness/endure6.mp3
+    - assets/voice/middle/sadness/last1.mp3
+    - assets/voice/middle/sadness/last2.mp3
+    - assets/voice/middle/sadness/last3.mp3
+    - assets/voice/middle/sadness/last4.mp3
+    - assets/voice/middle/sadness/last5.mp3
+    - assets/voice/middle/sadness/last6.mp3
+    - assets/voice/middle/sadness/last7.mp3
+    - assets/voice/middle/sadness/last8.mp3
+    - assets/voice/middle/sadness/last9.mp3
+    - assets/voice/middle/sadness/last10.mp3
+    - assets/voice/middle/sadness/last11.mp3
+    - assets/voice/middle/sadness/last12.mp3
+    - assets/voice/middle/sadness/last13.mp3
+    - assets/voice/middle/sadness/end1.mp3
+    - assets/voice/middle/sadness/end2.mp3
+    - assets/voice/middle/sadness/end3.mp3
+    - assets/voice/middle/sadness/end4.mp3
+    - assets/voice/middle/truth/truth1.mp3
+    - assets/voice/middle/truth/truth2.mp3
+    - assets/voice/middle/truth/truth3.mp3
+    - assets/voice/middle/truth/truth4.mp3
+    - assets/voice/middle/truth/truth5.mp3
+    - assets/voice/middle/truth/truth6.mp3
+    - assets/voice/middle/truth/truth7.mp3
+    - assets/voice/middle/truth/truth8.mp3
+    - assets/voice/middle/truth/truth9.mp3
+    - assets/voice/middle/truth/truth10.mp3
+    - assets/voice/middle/truth/truth11.mp3
+    - assets/voice/middle/truth/truth12.mp3
+    - assets/voice/middle/truth/truth13.mp3
+    - assets/voice/middle/truth/truth14.mp3
+    - assets/voice/middle/truth/truth15.mp3
+    - assets/voice/middle/truth/truth16.mp3
+    - assets/voice/middle/truth/truth17.mp3
+    - assets/voice/middle/truth/truth18.mp3
+    - assets/voice/middle/truth/truth19.mp3
+    - assets/voice/middle/truth/truth20.mp3
+    - assets/voice/middle/truth/truth21.mp3
+    - assets/voice/middle/truth/truth22.mp3
+    - assets/voice/middle/truth/truth23.mp3
+    - assets/voice/middle/truth/truth24.mp3
+    - assets/voice/middle/truth/truth25.mp3
+    - assets/voice/middle/truth/truth26.mp3
+    - assets/voice/middle/truth/truth27.mp3
+    - assets/voice/middle/truth/truth28.mp3
+    - assets/voice/middle/truth/truth29.mp3
+    - assets/voice/middle/truth/truth30.mp3
+    - assets/voice/middle/truth/truth31.mp3
+    - assets/voice/late/late1.mp3
+    - assets/voice/late/late2.mp3
+    - assets/voice/late/late3.mp3
+    - assets/voice/late/late4.mp3
+    - assets/voice/late/late5.mp3
+    - assets/voice/late/late6.mp3
+    - assets/voice/late/late7.mp3
+    - assets/voice/late/late8.mp3
+    - assets/voice/late/late9.mp3
+    - assets/voice/late/late10.mp3
+    - assets/voice/late/late11.mp3
+    - assets/voice/late/late12.mp3
+    - assets/voice/late/late13.mp3
+    - assets/voice/late/late14.mp3
+    - assets/voice/late/late15.mp3
+    - assets/voice/late/late16.mp3
+    - assets/voice/late/late17.mp3
+    - assets/voice/late/late18.mp3
+    - assets/voice/late/late19.mp3
+    - assets/voice/late/late20.mp3
+    - assets/voice/late/late21.mp3
+    - assets/voice/late/late22.mp3
+    - assets/voice/late/late23.mp3
+    - assets/voice/late/late24.mp3
+    - assets/voice/late/late25.mp3
+    - assets/voice/late/late26.mp3
+    - assets/voice/late/late27.mp3
+    - assets/voice/late/late28.mp3
+    - assets/voice/late/late29.mp3
+    - assets/voice/late/late30.mp3
+    - assets/voice/late/late31.mp3
+    - assets/voice/late/late32.mp3
+    - assets/voice/late/late33.mp3
+    - assets/voice/late/late34.mp3
+    - assets/voice/end/endp2_1.mp3
+    - assets/voice/end/endp2_2.mp3
+    - assets/voice/end/endp2_3.mp3
+    - assets/voice/end/endp2_4.mp3
+    - assets/voice/end/endp2_5.mp3
+    - assets/voice/end/endp2_6.mp3
+    - assets/voice/end/the_end.mp3
+    - assets/voice/story/muji1.mp3
+    - assets/voice/story/muji2.mp3
+    - assets/voice/story/pup1.mp3
+    - assets/voice/story/pup2.mp3
+    - assets/voice/story/pup3.mp3
+    - assets/voice/story/pup4.mp3
+    - assets/voice/story/pup5.mp3
+    - assets/voice/story/pup6.mp3
+    - assets/voice/end/endp1.mp3
+    - assets/voice/end/endp2.mp3
+    - assets/voice/end/endp3.mp3
+    - assets/voice/end/endp4.mp3
+    - assets/voice/end/endp5.mp3
+    - assets/voice/end/endp6.mp3
+    - assets/voice/end/endp7.mp3
+    - assets/voice/end/endp8.mp3
+    - assets/voice/end/endp9.mp3
+    - assets/voice/end/endp10.mp3
+    - assets/voice/end/endp11.mp3
+    - assets/voice/end/endp12.mp3
+    - assets/voice/end/endp13.mp3
+    - assets/voice/end/endp15.mp3
+    - assets/voice/end/endp16.mp3
+    - assets/voice/end/endp17.mp3
+    - assets/voice/end/endp18.mp3
+    - assets/voice/end/endp19.mp3
+    - assets/voice/end/endp20.mp3
+    - assets/voice/end/endp21.mp3
+    - assets/voice/end/endp22.mp3
+    - assets/voice/end/endp23.mp3
+    - assets/voice/end/endp24.mp3
+    - assets/voice/end/endp25.mp3
+    - assets/voice/end/endp26.mp3
+    - assets/voice/end/endp27.mp3
+    - assets/musics/intro_music.mp3
+    - assets/musics/intro_music_1.mp3
+    - assets/musics/early_music.mp3
+    - assets/musics/middle_music.mp3
+    - assets/musics/late_music.mp3
+    - assets/musics/end_music.mp3
+
+
+
+  # TmoneyRoundWindExtraBold, Cafe24Ssurround-v2.0, Cafe24SsurroundAir-v1.1
+
+  fonts:
+    - family: Bameuihaebyun
+      fonts:
+        - asset: assets/font/Bameuihaebyun.ttf
+          weight: 200
+
+    - family: Pretendard
+      fonts:
+        - asset: assets/font/Pretendard-Bold.ttf
+          weight: 700
+        - asset: assets/font/Pretendard-Light.ttf
+          weight: 300
+        - asset: assets/font/Pretendard-Medium.ttf
+          weight: 500
+        - asset: assets/font/Pretendard-Regular.ttf
+          weight: 400
+        - asset: assets/font/Pretendard-SemiBold.ttf
+          weight: 600
+
+    - family: Nanum-BaReunHiPi
+      fonts:
+        - asset: assets/font/Nanum-BaReunHiPi.ttf
+          weight: 600
+
+    - family: TmoneyRoundWindExtraBold
+      fonts:
+        - asset: assets/font/TmoneyRoundWindExtraBold.ttf
+          weight: 600
+
+    - family: Cafe24Ssurround-v2.0
+      fonts:
+        - asset: assets/font/Cafe24Ssurround-v2.0.ttf
+          weight: 200
+
+    - family: Cafe24SsurroundAir-v1.1
+      fonts:
+        - asset: assets/font/Cafe24SsurroundAir-v1.1.ttf
+          weight: 500
 
 

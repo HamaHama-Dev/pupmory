@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'dart:async';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:client/conversation/intro/intro_memorial.dart';
+import 'package:client/memorial/modify_profile.dart';
 import 'package:client/memorial/write_memorial.dart';
 import 'package:client/style.dart';
 import 'package:flutter/services.dart';
@@ -10,35 +13,23 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'memorial_detail.dart';
 import 'watch_others.dart';
+import 'write_memorial.dart';
+import 'package:client/sign/sign_in.dart' as sign_in;
 
-class MemorialMain0919Page extends StatefulWidget {
+class MemorialMainPage extends StatefulWidget {
   @override
-  State<MemorialMain0919Page> createState() => _MemorialMain0919PageState();
+  State<MemorialMainPage> createState() => _MemorialMainPageState();
 }
 
 String selectedImage = "";
 int postId = 0;
+bool inUser = false;
+String _dataFromPage = '';
 
-
-class Todos {
-  String? posts;
-
-  Todos({this.posts});
-
-  Todos.fromJson(Map<String, dynamic> json) {
-    posts = json['posts'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['posts'] = this.posts;
-    return data;
-  }
-}
-
-class _MemorialMain0919PageState extends State<MemorialMain0919Page> {
+class _MemorialMainPageState extends State<MemorialMainPage> {
 
   // 화면에 보이는 UI 설정 bool
+  bool fetchDataSuccess = false;
   bool askHelp = true;
   bool sendHelp = false;
 
@@ -46,70 +37,18 @@ class _MemorialMain0919PageState extends State<MemorialMain0919Page> {
 
   List<String> con0Text =[];
 
-  void _callAPI2() async {
-    var url = Uri.parse(
-      'http://3.38.1.125:8080/memorial/all',
-    );
-    var response = await http.get(url);
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
-
-    // url = Uri.parse('https://reqbin.com/sample/post/json');
-    // response = await http.post(url, body: {
-    //   'key': 'value',
-    // });
-    // print('Response status: ${response.statusCode}');
-    // print('Response body: ${response.body}');
-  }
-
-
-  Future<List<Todos>> fetchTodos() async {
-    final response = await http.get(
-        Uri.parse('http://3.38.1.125:8080/memorial/all')
-    );
-
-    if(response.statusCode == 255){
-      return (jsonDecode(response.body) as List)
-          .map((e) => Todos.fromJson(e))
-          .toList();
-    } else {
-      throw Exception('Failed to load album');
-    }
-  }
-
-  void fetchData() async {
-    // API 엔드포인트 URL
-    String apiUrl = 'http://3.38.1.125:8080/memorial/comment?postId=2'; // 실제 API 엔드포인트로 변경하세요
-
-    // HTTP GET 요청 보내기
-    var response = await http.get(Uri.parse(apiUrl));
-
-    ///var jsonResponse = utf8.decode(response.bodyBytes);
-    // HTTP 응답 상태 확인
-    if (response.statusCode == 200) {
-      // 응답 데이터를 JSON 형식으로 디코딩
-      var data = json.decode(response.body);
-      var jsonResponse = utf8.decode(response.bodyBytes);
-
-      // 데이터 처리
-      print('서버로부터 받은 데이터: $jsonResponse');
-    } else {
-      // 요청이 실패한 경우 오류 처리
-      print('HTTP 요청 실패: ${response.statusCode}');
-    }
-  }
-
   late Map<String, dynamic> parsedResponseCN; // 글 내용
 
   late List<dynamic> postsList; // 포스트 하나 내용
 
-  void fetchWithHeaders() async {
+  void fetchWithHeaders(String aToken) async {
+
     // API 엔드포인트 URL
     String apiUrl = 'http://3.38.1.125:8080/memorial/all'; // 실제 API 엔드포인트로 변경하세요
 
     // 헤더 정보 설정
     Map<String, String> headers = {
-      'Authorization': 'axNNnzcfJaSiTPI6kW23G2Vns9o1', // 예: 인증 토큰을 추가하는 방법
+      'Authorization': 'Bearer $aToken', // 예: 인증 토큰을 추가하는 방법
       'Content-Type': 'application/json', // 예: JSON 요청인 경우 헤더 설정
     };
 
@@ -122,6 +61,7 @@ class _MemorialMain0919PageState extends State<MemorialMain0919Page> {
     // HTTP 응답 상태 확인
     if (response.statusCode == 200) {
       // 응답 데이터 처리
+      fetchDataSuccess = true;
       print('서버로부터 받은 내용 데이터: ${response.body}');
       var jsonResponse = utf8.decode(response.bodyBytes);
 
@@ -154,71 +94,6 @@ class _MemorialMain0919PageState extends State<MemorialMain0919Page> {
     }
   }
 
-  void _callAPI() async {
-
-    // 요청 본문 데이터
-    var data = {
-      "Authorization" : "axNNnzcfJaSiTPI6kW23G2Vns9o1",
-    };
-
-    var url = Uri.parse('http://3.38.1.125:8080/memorial/all'); // 엔드포인트 URL 설정
-
-    try {
-      var response = await http.post(
-        url,
-        body: json.encode(data), // 요청 본문에 데이터를 JSON 형식으로 인코딩하여 전달
-        headers: {'Content-Type': 'application/json',}, // 요청 헤더에 Content-Type 설정
-      );
-
-      if (response.statusCode == 200) {
-        // 응답 성공 시의 처리
-
-        var jsonResponse = utf8.decode(response.bodyBytes); // 응답 본문을 JSON 형식으로 디코딩
-        // JSON 값을 활용한 원하는 동작 수행
-        //utf8.decode(jsonResponse);
-        print(jsonResponse);
-
-        List<String> contentList = [];
-
-        List<dynamic> parsedResponse = json.decode(jsonResponse);
-
-        setState(() {
-          for (var item in parsedResponse) {
-            if (item['content'] != null) {
-              con0Text.add(item['content']);
-            }
-          }
-        });
-
-
-        print(con0Text);
-
-        print('API 호출 성공: ${response.statusCode}');
-      } else {
-        // 요청 실패 시의 처리
-        print('API 호출 실패: ${response.statusCode}');
-      }
-    } catch (e) {
-      // 예외 발생 시의 처리
-      print('API 호출 중 예외 발생: $e');
-    }
-  }
-
-  List<String> parsedResponse = [
-    'https://images.unsplash.com/photo-1589965716319-4a041b58fa8a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80',
-    'https://images.unsplash.com/photo-1546975490-a79abdd54533?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1887&q=80',
-    'https://images.unsplash.com/photo-1628344806892-11873eba7974?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1887&q=80',
-    'https://images.unsplash.com/photo-1618901277211-00af8265a94d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80',
-    'https://images.unsplash.com/photo-1561852184-92b9bb821045?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2073&q=80',
-    'https://images.unsplash.com/photo-1636910825807-171715240043?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1992&q=80',
-    'https://images.unsplash.com/photo-1546975554-31053113e977?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2071&q=80',
-    'https://images.unsplash.com/photo-1634635880938-d81e973bcd6c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1935&q=80',
-    'https://images.unsplash.com/photo-1534176043700-789edb4e2f91?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
-    'https://images.unsplash.com/photo-1549950844-e6a5d47f8324?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2071&q=80',
-    'https://images.unsplash.com/photo-1636910824730-4eaf1603a3e4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1950&q=80',
-    'https://images.unsplash.com/photo-1636910824657-4be41fdf713a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1935&q=80'
-  ];
-
   XFile? _image; //이미지를 담을 변수 선언
   final ImagePicker picker = ImagePicker(); //ImagePicker 초기화
 
@@ -233,89 +108,224 @@ class _MemorialMain0919PageState extends State<MemorialMain0919Page> {
     }
   }
 
-  late Future<List<Todos>> futureTodos;
 
   @override
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: [SystemUiOverlay.top]);
-    fetchWithHeaders();
+    fetchWithHeaders(sign_in.userAccessToken);
+
+    Timer(Duration(milliseconds: 500), () {
+      fetchWithHeaders(sign_in.userAccessToken);
+    });
+  }
+
+  double calculateGridViewHeight() {
+    // 그리드뷰의 아이템 수
+    int itemCount = postsList.length;
+
+    // 그리드뷰의 열 수 (3개의 아이템이 한 행에 있을 때)
+    int columnCount = 3;
+
+    // 아이템의 높이 (가로:세로 비율을 설정할 수 있음)
+    double itemHeight = 104.0; // 이 값은 적절히 조정
+
+    // 아이템 간의 수직 간격
+    double crossAxisSpacing = 8.0;
+
+    // 그리드뷰의 높이 계산
+    double gridHeight = ((itemCount / columnCount).ceil() * itemHeight) +
+        ((itemCount / columnCount - 1).ceil() * crossAxisSpacing);
+
+    return gridHeight;
   }
 
   @override
   Widget build(BuildContext context) {
+    MediaQueryData deviceData = MediaQuery.of(context);
+    Size screenSize = deviceData.size;
     return Scaffold(
       appBar: AppBar(
-        title: SvgPicture.asset(
-          'assets/images/home/home_main_logo.svg',
+        title:
+        Container(
+          width: screenSize.width,
+          height: 46,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 18,),
+              SvgPicture.asset(
+                'assets/images/logo/pup_logo.svg',
+                height: 25.41,
+                width: 110.19,
+                fit: BoxFit.cover,
+              ),
+            ],
+          ),
         ),
+        // SvgPicture.asset(
+        //   'assets/images/home/home_main_logo.svg',
+        // ),
+        actions: <Widget>[
+          Padding(padding: EdgeInsets.only(right: 15),
+          child: Padding(
+            padding: EdgeInsets.only(top:16),
+            child: Row(
+              children: [
+                Stack(
+                  children: [
+                    Text("${postsList.length.toInt()}개의 기억",style: TextStyle(
+                      fontFamily: 'Bameuihaebyun',
+                      foreground: Paint()
+                        ..style = PaintingStyle.stroke
+                        ..strokeWidth = 2
+                        ..color = Colors.white,
+                      fontSize: 14,
+                    ),),
+                    Text("${postsList.length.toInt()}개의 기억",style: TextStyle(
+                      fontFamily: 'Bameuihaebyun',
+                      color: Color(0xff4B5396),
+                      fontSize: 14,
+                    ),),
+                  ],
+                ),
+                SizedBox(width: 8,),
+                SvgPicture.asset(
+                  'assets/images/memorial/cloud.svg',
+                ),
+              ],
+            ),
+          )
+          )
+        ],
         automaticallyImplyLeading: false,
         backgroundColor: Color(0xffDDE7FD),
         elevation: 0.0,
       ),
       body: Container(
         color: Color(0xffDDE7FD),
-        width: Get.width,
-        height: Get.height,
+        // width: Get.width,
+        // height: Get.height,
         child: SingleChildScrollView(
           scrollDirection: Axis.vertical,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               if(checkCN)...[
+                SizedBox(height: 16,),
                 Row(
                   children: [
-                    SizedBox(width: 15,),
-                    CircleAvatar(
-                      backgroundColor: Colors.white,
-                      radius: 65,
-                      // minRadius: 50,
-                      // maxRadius: 55,
-                      //backgroundImage: NetworkImage(parsedResponseCN['profileImage']),
-                      child: CircleAvatar(
-                        radius: 55,
-                        backgroundImage: NetworkImage(parsedResponseCN['profileImage']),
-                      ),
-                    ),
-                    SizedBox(width: 20,),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    SizedBox(width: 16,),
+                    Stack(
                       children: [
-                        Text("${parsedResponseCN['nickname']}님의 반려견", style: textStyle.bk20bold,),
-                        SizedBox(height: 5,),
-                        Text("${parsedResponseCN['puppyName']}(${parsedResponseCN['puppyType']}, ${parsedResponseCN['puppyAge']}살)", style: textStyle.bk16normal,),
+                        if(parsedResponseCN['profileImage'].toString() == "null")...[
+                          CircleAvatar(
+                            backgroundColor: Colors.white,
+                            radius: 59.5,
+                            // minRadius: 50,
+                            // maxRadius: 55,
+                            //backgroundImage: NetworkImage(parsedResponseCN['profileImage']),
+                            child: CircleAvatar(
+                              child: SvgPicture.asset('assets/images/user_null2.svg',
+                                width: 110,
+                                height: 110,
+                                fit: BoxFit.fill,),
+                              radius: 54.5,
+                            ),
+                          ),
+                        ]else...[
+                          CircleAvatar(
+                            backgroundColor: Colors.white,
+                            radius: 59.5,
+                            // minRadius: 50,
+                            // maxRadius: 55,
+                            //backgroundImage: NetworkImage(parsedResponseCN['profileImage']),
+                            child: CircleAvatar(
+                              radius: 54.5,
+                              backgroundImage: NetworkImage(parsedResponseCN['profileImage'].toString()),
+                            ),
+                          ),
+                        ],
+
+                        Padding(padding: EdgeInsets.fromLTRB(80, 80, 15, 15),
+                          child: SvgPicture.asset('assets/images/memorial/foot.svg'),)
                       ],
                     ),
-                    SizedBox(width: 20,),
+                    SizedBox(width: 8,),
+                    Padding(padding: EdgeInsets.only(bottom:22),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text("${parsedResponseCN['nickname']}", style: TextStyle(fontFamily: 'Pretendard',
+                                  fontWeight: FontWeight.w600, fontSize: 20),),
+                              Text("님의 반려견", style: TextStyle(fontFamily: 'Pretendard',
+                                  fontWeight: FontWeight.w500, fontSize: 16),),
+                            ],
+                          ),
+                          SizedBox(height: 4,),
+                          Row(
+                            children: [
+                              Text("${parsedResponseCN['puppyName']}", style: TextStyle(fontFamily: 'Pretendard',
+                                  fontWeight: FontWeight.w600, fontSize: 20),),
+                              Text("(${parsedResponseCN['puppyType']}, ${parsedResponseCN['puppyAge']}살)", style: TextStyle(fontFamily: 'Pretendard',
+                                  fontWeight: FontWeight.w500, fontSize: 16),),
+                            ],
+                          ),
+                        ],
+                      ),),
+
                   ],
                 ),
-                SizedBox(height: 15,),
+                SizedBox(height: 14,),
                 Row(
                   children: [
-                    SizedBox(width: 15,),
+                    SizedBox(width: 16,),
                     Container(
                       width: 115,
                       height: 40,
                       child: ElevatedButton(
-                        style: buttonChart().bluebtn2,
-                        child: Text('프로필 사진'),
+                        style: buttonChart().whitebtn2,
+                        child: Text('프로필 수정', style: TextStyle(fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.w500, fontSize: 16),),
                         onPressed: (){
+                          final result = Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => ModifyProfilePage()),
+                          );
+                          // pop()으로 돌아온 결과를 사용하여 setState 호출
+                          if (result != null) {
+                            setState(() {
+                              //_dataFromPage = result as String;
 
+                              Timer(Duration(milliseconds: 800), () {
+                                fetchWithHeaders(sign_in.userAccessToken);
+                              });
+                              // fetchWithHeaders(sign_in.userAccessToken);
+                              print("성공");
+                            });
+                          }
+                          // Navigator.push(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //         builder: (context) => ModifyProfilePage()));
                         },
                       ),
                     ),
-                    SizedBox(width: 15,),
+                    SizedBox(width: 8,),
                     Container(
-                      width: 205,
+                      width: 230,
                       height: 40,
                       child: ElevatedButton(
-                        style: buttonChart().whitebtn,
+                        style: buttonChart().purplebtn,
                         child: Row(children: [
-                          SizedBox(width: 35,),
-                          Text('메모리얼 올리기'),
+                          SizedBox(width: 52,),
+                          Text('기억 남기기', style: TextStyle(fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w600, fontSize: 16, color: Color(0xffF2F6FF)),),
                           SizedBox(width: 5,),
                           SvgPicture.asset(
-                            'assets/images/memorial/upload_icon.svg',
+                            'assets/images/memorial/upload_icon2.svg',
                           ),
                         ],),
                         onPressed: (){
@@ -327,32 +337,36 @@ class _MemorialMain0919PageState extends State<MemorialMain0919Page> {
                       ),
                     ),
                   ],),
-                SizedBox(height: 30,),
+                SizedBox(height: 24,),
                 Container(
                   color: Color(0xffF2F4F6),
-                  padding: EdgeInsets.fromLTRB(15, 0, 15, 15),
+                  padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
                   width: Get.width,
-                  height: Get.height,
+                  //height: 650,
                   child: Column(
                     children: [
-                      SizedBox(height: 30,),
+                      SizedBox(height: 24,),
+                      // Expanded(child: child),
                       Container(
-                          width: 400,
-                          height: 480,
+                          width: Get.width,
+                        //height: 318,
+                          height: (postsList.length<7) ? 302 : calculateGridViewHeight() + 48,
                           color: Color(0xffF2F4F6),
                           child: GridView.builder(
+                              shrinkWrap: true, // 그리드뷰가 자신의 내용에 맞게 크기를 조절하도록 함
+                              physics: NeverScrollableScrollPhysics(),
                               itemCount:postsList.length,
                               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 3, //1 개의 행에 보여줄 item 개수
                                 childAspectRatio: 1 / 1, //item 의 가로 1, 세로 2 의 비율
-                                mainAxisSpacing: 8, //수평 Padding
-                                crossAxisSpacing: 8, //수직 Padding
+                                mainAxisSpacing: 10, //수평 Padding
+                                crossAxisSpacing: 10, //수직 Padding
                               ),
                               itemBuilder: (BuildContext context, int index){
                                 return
                                   Container(
-                                      width: 120,
-                                      height: 120,
+                                      width: 114,
+                                      height: 114,
                                       child: Stack(
                                         children: [
                                           InkWell(
@@ -365,18 +379,27 @@ class _MemorialMain0919PageState extends State<MemorialMain0919Page> {
                                                       builder: (context) => MemorialDetailPage()));
                                             },
                                             child: Container(
-                                              width: 120,
-                                              height: 120,
+                                              width: 114,
+                                              height: 114,
                                               child:
                                               ClipRRect(
                                                 borderRadius: BorderRadius.circular(16.0),
-                                                child:  Image.network(postsList[index]['image'], fit: BoxFit.cover,),
+                                                child:  Image(
+                                                  image: NetworkImage(postsList[index]['image'], ),
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder: (context, error, stackTrace) {
+                                                    // 오류 발생 시 대체 이미지를 표시
+                                                    return SvgPicture.asset(
+                                                      'assets/images/no_result.svg',);
+                                                  },
+                                                )
+                                                //Image.network(postsList[index]['image'], fit: BoxFit.cover,),
                                               ),
                                             ),
                                           ),
                                           if(postsList[index]['private'] == true)...[
                                             Row(children: [
-                                              SizedBox(width: 90,),
+                                              SizedBox(width: 80,),
                                               Padding(padding: EdgeInsets.only(top:10),
                                                 child: SvgPicture.asset(
                                                   'assets/images/memorial/private.svg',
@@ -389,46 +412,68 @@ class _MemorialMain0919PageState extends State<MemorialMain0919Page> {
                                       )
                                   );
 
-                              })
+                              }),
                       ),
-                      Container(
-                        padding: EdgeInsets.fromLTRB(20, 30, 10, 15),
-                        width: Get.width,
-                        height: 98,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Container(
-                                  width: 41,
-                                  height: 41,
-                                  child: Image.asset('assets/images/memorial/more_memorial.png'),),
-                                SizedBox(width: 10,),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text("다른 반려인들의 메모리얼을 구경해보세요!",style: TextStyle(color: Color(0xff4B5396),fontSize: 14),),
-                                    SizedBox(height:3,),
-                                    Text("메모리얼 구경하러 가기",style: TextStyle(color: Color(0xff4B5396),fontSize: 18, fontWeight: FontWeight.bold),)
-                                  ],
-                                ),
-                                SizedBox(width: 37,),
-                                IconButton(onPressed: (){
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => WatchOthersPage()));
-                                }, icon: Icon(Icons.arrow_forward_ios_rounded), color: Color(0xff627DBB),)
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
+                      //SizedBox(height: 8,),
+                      InkWell(
+                        onTap: (){
+                          inUser = true;
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => WatchOthersPage()));
+                        },
+                        child: Container(
+                          padding: EdgeInsets.fromLTRB(24, 24, 0, 0),
+                          width: Get.width,
+                          height: 89,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  // Container(
+                                  //   width: 41,
+                                  //   height: 41,
+                                  //   child: SvgPicture.asset(
+                                  //     'assets/images/memorial/more_memorial.svg',
+                                  //   ),
+                                  // ),
 
+                                  SvgPicture.asset(
+                                    'assets/images/memorial/more_memorial.svg',
+                                    width: 41,
+                                    height: 41,
+                                    fit: BoxFit.fill,
+                                  ),
+
+                                  SizedBox(width: 15,),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text("다른 반려인들의 메모리얼을 구경해보세요!",style: TextStyle(color: Color(0xff4B5396), fontFamily: 'Pretendard',
+                                          fontWeight: FontWeight.w400, fontSize: 12, letterSpacing: 0.5),),
+                                      SizedBox(height:6,),
+                                      Text("메모리얼 구경하러 가기",style: TextStyle(color: Color(0xff4B5396),fontSize: 16, fontFamily: 'Pretendard',
+                                        fontWeight: FontWeight.w600,),)
+
+                                    ],
+                                  ),
+                                  SizedBox(width:15,),
+                                  // assets/images/home/arrow.svg
+                                  SvgPicture.asset(
+                                    'assets/images/home/arrow.svg',
+                                  ),
+                                ],
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 12,),
                     ],
                   ),
 
@@ -438,31 +483,13 @@ class _MemorialMain0919PageState extends State<MemorialMain0919Page> {
           ),
         ),
       ),
+      // floatingActionButton: SizedBox(
+      //   height: 56,
+      //   width: extended ? 120 : 56,
+      //   child: extendButton(),
+      // ),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
 
-  }
-
-  bool extended = false;
-
-  FloatingActionButton extendButton() {
-    return FloatingActionButton.extended(
-      onPressed: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => WriteMemorialPage()));
-      },
-      label: const Text(""),
-      isExtended: extended,
-      icon: const Icon(
-        Icons.add,
-        size: 30,
-      ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-
-      /// 텍스트 컬러
-      foregroundColor: Color(0xffFCCBCD),
-      backgroundColor: Color(0xff83A8FF),
-    );
   }
 }

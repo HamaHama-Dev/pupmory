@@ -1,9 +1,9 @@
-/// 옮기기 가능
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:client/conversation/intro/intro.dart';
+import 'package:client/conversation/intro/intro_story.dart';
 import 'package:client/screen.dart';
 import 'package:client/sign/sign_in.dart';
 import 'package:client/style.dart';
@@ -12,7 +12,7 @@ import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:client/sign/sign_in.dart' as sign_in;
 
-bool checkSignUp = false;
+// bool checkSignUp = false;
 
 /// 회원가입 페이지(이메일 회원가입)
 class SignUpPage extends StatefulWidget {
@@ -121,6 +121,7 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   late Map<String, dynamic> parsedResponseUser; // 사용자 정보
+
   // 사용자 정보 조회 : 대화하기가 1이면 인트로 아니면 그냥 홈으로 이동
   void fetchUserInfo(String aToken) async {
     // API 엔드포인트 URL
@@ -151,7 +152,7 @@ class _SignUpPageState extends State<SignUpPage> {
       Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => IntroPage()));
+              builder: (context) => IntroStoryPage()));
 
     } else {
       // 요청이 실패한 경우 오류 처리
@@ -160,6 +161,7 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   late Map<String, dynamic> parsedResponseAT; // 액세스 토큰
+
   // 회원가입 = 회원생성 및 회원 처음 정보 db 생성을 위해서 존재
   void fetchSignUpToken(String userUid, String email) async {
 
@@ -195,9 +197,10 @@ class _SignUpPageState extends State<SignUpPage> {
 
       userAccessToken = parsedResponseAT['accessToken']; // 액세스 토큰을 전역변수에 저장 -> 다른 파일에서도 사용
       print("accessToken:" + userAccessToken);
-
+      sign_in.checkSignUp = true;
       sign_in.userAccessToken = userAccessToken;
       fetchUserInfo(userAccessToken);
+
 
     } else {
       // 요청이 실패한 경우 오류 처리
@@ -325,6 +328,10 @@ class _SignUpPageState extends State<SignUpPage> {
                         contentPadding: EdgeInsets.only(top:3, left: 5),
                         hintStyle: textStyle.grey16normal,
                         border: InputBorder.none,
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                          borderSide: BorderSide(width: 1, color: Colors.white),
+                        ),
                         filled: true,
                         fillColor: Color(0xffF9F9F9),
                         hintText: '이메일 주소',
@@ -374,6 +381,10 @@ class _SignUpPageState extends State<SignUpPage> {
                         contentPadding: EdgeInsets.only(top:3, left: 5),
                         hintStyle: textStyle.grey16normal,
                         border: InputBorder.none,
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                          borderSide: BorderSide(width: 1, color: Colors.white),
+                        ),
                         filled: true,
                         fillColor: Color(0xffF9F9F9),
                         hintText: '비밀번호',
@@ -427,6 +438,10 @@ class _SignUpPageState extends State<SignUpPage> {
                         contentPadding: EdgeInsets.only(top:3, left: 5),
                         hintStyle: textStyle.grey16normal,
                         border: InputBorder.none,
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                          borderSide: BorderSide(width: 1, color: Colors.white),
+                        ),
                         filled: true,
                         fillColor: Color(0xffF9F9F9),
                         hintText: '비밀번호 확인',
@@ -535,6 +550,10 @@ class _SignUpPageState extends State<SignUpPage> {
                             contentPadding: EdgeInsets.only(top:3, left: 5),
                             hintStyle: textStyle.grey16normal,
                             border: InputBorder.none,
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                              borderSide: BorderSide(width: 1, color: Colors.white),
+                            ),
                             filled: true,
                             fillColor: Color(0xffF9F9F9),
                             hintText: '인증 번호',

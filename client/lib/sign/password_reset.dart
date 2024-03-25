@@ -61,139 +61,142 @@ class _PasswordResetPageState extends State<PasswordResetPage> {
     Size screenSize = deviceData.size;
     return
       Scaffold(
-          backgroundColor: Color(0xffF2F4F6),
-          appBar: AppBar(
-            title: Text("비밀번호 재설정", style: textStyle.bk20normal),
-            backgroundColor: Colors.transparent,
-            elevation: 0.0,
-            iconTheme: IconThemeData(color: Colors.black),
-            centerTitle: true,
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back_ios_rounded, color: Colors.black),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ),extendBodyBehindAppBar: true,
-          body: Container(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                SizedBox(height: 86,),
-                Row(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(sent ? '이메일을 전송했어요.':'가입한 이메일 주소를 입력하세요.',style: textStyle.bk20semibold),
-                        SizedBox(height: 16,),
-                        Text(sent ?'비밀번호 재설정을 위한 이메일을 전송했어요.\n이메일이 오지 않았다면, 스팸메일함을 확인해보세요.' : '이메일 주소로 비밀번호 재설정 링크를 전송합니다.',style: textStyle.bk13light),
-                      ],
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16,),
-
-                if(sent == false)...[
-                  Container(
-                    width: screenSize.width,
-                    height: 44,
-                    child: TextField(
-                      controller: emailController,
-                      style: TextStyle(decorationThickness: 0, fontFamily: 'Pretendard',
-                          fontSize: 16, fontWeight: FontWeight.w400, color: Color(colorChart.black)),
-                      onChanged: (text){
-                        setEmail = true;
-                        setState(() {
-                        });
-                      },
-                      decoration: InputDecoration(
-                        filled: true,
-                        border: InputBorder.none,
-                        fillColor: Color(0xffF9F9F9),
-                        hintText: '이메일 주소',
-                        hintStyle: textStyle.grey16normal,
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(width: 1, color: Colors.white), //<-- SEE HERE
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                      ),
-                    ),
-                  ),
-                ]else...[
-                  Container(
-                    width: screenSize.width,
-                    height: 44,
-                    child: TextField(
-                      style: TextStyle(decorationThickness: 0, fontFamily: 'Pretendard',
-                          fontSize: 16, fontWeight: FontWeight.w400, color: Color(colorChart.grey)),
-                      readOnly: true, // 읽기 전용
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        filled: true,
-                        fillColor: Color(0xffEAEAEA),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(width: 1, color: Colors.white), //<-- SEE HERE
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                      ),
-                    ),
+        backgroundColor: Color(0xffF2F4F6),
+        appBar: AppBar(
+          title: Text("비밀번호 재설정", style: textStyle.bk20normal),
+          backgroundColor: Colors.transparent,
+          elevation: 0.0,
+          iconTheme: IconThemeData(color: Colors.black),
+          centerTitle: true,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_ios_rounded, color: Colors.black),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ),extendBodyBehindAppBar: true,
+        body: Container(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              SizedBox(height: 86,),
+              Row(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(sent ? '이메일을 전송했어요.':'가입한 이메일 주소를 입력하세요.',style: textStyle.bk20semibold),
+                      SizedBox(height: 16,),
+                      Text(sent ?'비밀번호 재설정을 위한 이메일을 전송했어요.\n이메일이 오지 않았다면, 스팸메일함을 확인해보세요.' : '이메일 주소로 비밀번호 재설정 링크를 전송합니다.',style: textStyle.bk13light),
+                    ],
                   ),
                 ],
+              ),
+              SizedBox(height: 16,),
 
-                SizedBox(height: 16,),
+              if(sent == false)...[
+                Container(
+                  width: screenSize.width,
+                  height: 44,
+                  child: TextField(
+                    controller: emailController,
+                    style: TextStyle(decorationThickness: 0, fontFamily: 'Pretendard',
+                        fontSize: 16, fontWeight: FontWeight.w400, color: Color(colorChart.black)),
+                    onChanged: (text){
+                      setEmail = true;
+                      setState(() {
+                      });
+                    },
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.only(top:3, left: 5),
+                      hintStyle: textStyle.grey16normal,
+                      filled: true,
+                      border: InputBorder.none,
+                      fillColor: Color(0xffF9F9F9),
+                      hintText: '이메일 주소',
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(width: 1, color: Colors.white), //<-- SEE HERE
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                    ),
+                  ),
+                ),
+              ]else...[
+                Container(
+                  width: screenSize.width,
+                  height: 44,
+                  child: TextField(
+                    style: TextStyle(decorationThickness: 0, fontFamily: 'Pretendard',
+                        fontSize: 16, fontWeight: FontWeight.w400, color: Color(colorChart.grey)),
+                    readOnly: true, // 읽기 전용
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.only(top:3, left: 5),
+                      hintStyle: textStyle.grey16normal,
+                      border: InputBorder.none,
+                      filled: true,
+                      fillColor: Color(0xffEAEAEA),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(width: 1, color: Colors.white), //<-- SEE HERE
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
 
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    if(sent==false)...[
-                      if(setEmail)...[
-                        Container(
-                          height: 44,
-                          width: screenSize.width,
-                          child: ElevatedButton(onPressed: (){
-                            // 이메일로 비밀번호 재설정 링크 전달
-                            sent = true;
-                            setedEmail = emailController.text;
-                            resetPassword(setedEmail);
-                            setState(() {});
-                          },
-                              style: buttonChart().signInbtn,
-                              child: Text("이메일 전송", style: textStyle.white16semibold,)
-                          ),
+              SizedBox(height: 16,),
+
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if(sent==false)...[
+                    if(setEmail)...[
+                      Container(
+                        height: 44,
+                        width: screenSize.width,
+                        child: ElevatedButton(onPressed: (){
+                          // 이메일로 비밀번호 재설정 링크 전달
+                          sent = true;
+                          setedEmail = emailController.text;
+                          resetPassword(setedEmail);
+                          setState(() {});
+                        },
+                            style: buttonChart().signInbtn,
+                            child: Text("이메일 전송", style: textStyle.white16semibold,)
                         ),
-                      ]else...[
-                        Container(
-                          height: 44,
-                          width: screenSize.width,
-                          child: ElevatedButton(onPressed: (){
-                            // 아무 반응 없는 것이 맞음
-                          },
-                              style: buttonChart().purplebtn3,
-                              child: Text("이메일 전송", style: textStyle.white16semibold,)
-                          ),
-                        ),
-                      ]
+                      ),
                     ]else...[
                       Container(
                         height: 44,
                         width: screenSize.width,
                         child: ElevatedButton(onPressed: (){
-                          // 처음 로그인 화면으로 이동하기
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => SignInPage()));
+                          // 아무 반응 없는 것이 맞음
                         },
-                            style: buttonChart().signInbtn,
-                            child: Text("확인", style: textStyle.white16semibold,)
+                            style: buttonChart().purplebtn3,
+                            child: Text("이메일 전송", style: textStyle.white16semibold,)
                         ),
                       ),
-                    ],
+                    ]
+                  ]else...[
+                    Container(
+                      height: 44,
+                      width: screenSize.width,
+                      child: ElevatedButton(onPressed: (){
+                        // 처음 로그인 화면으로 이동하기
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => SignInPage()));
+                      },
+                          style: buttonChart().signInbtn,
+                          child: Text("확인", style: textStyle.white16semibold,)
+                      ),
+                    ),
                   ],
-                ),
-              ],
-            ),
-          )
+                ],
+              ),
+            ],
+          ),
+        )
 
       );
   }

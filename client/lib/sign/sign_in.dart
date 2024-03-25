@@ -1,19 +1,17 @@
-/// 옮기기 가능
 import 'package:flutter_svg/svg.dart';
 import 'package:client/conversation/intro/intro.dart';
 import 'package:client/style.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:convert';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_sign_in/google_sign_in.dart';
 import '../screen.dart';
 import 'password_reset.dart';
-import 'sign_up2.dart';
+import 'sign_up.dart';
 
 String userAccessToken = "";
-bool checkSignIn = false;
+bool checkSignUp = false;
 
 class SignInPage extends StatefulWidget {
   @override
@@ -25,30 +23,29 @@ class _SignInPageState extends State<SignInPage> {
   TextEditingController passwordController = TextEditingController();
   String errorString = ''; //login error 보려고 만든 String state
 
-  static final storage = FlutterSecureStorage(); // FlutterSecureStorage를 storage로 저장
   dynamic userInfo = ''; // storage에 있는 유저 정보를 저장
 
-  _asyncMethod() async {
-    // read 함수로 key값에 맞는 정보를 불러오고 데이터타입은 String 타입
-    // 데이터가 없을때는 null을 반환
-    userInfo = await storage.read(key:'login');
-
-    // user의 정보가 있다면 로그인 후 들어가는 첫 페이지로 넘어가게 합니다.
-    if (userInfo != null) {
-      Navigator.pushNamed(context, '/main');
-    } else {
-      print('로그인이 필요합니다');
-    }
-  }
+  // _asyncMethod() async {
+  //   // read 함수로 key값에 맞는 정보를 불러오고 데이터타입은 String 타입
+  //   // 데이터가 없을때는 null을 반환
+  //   userInfo = await storage.read(key:'login');
+  //
+  //   // user의 정보가 있다면 로그인 후 들어가는 첫 페이지로 넘어가게 합니다.
+  //   if (userInfo != null) {
+  //     Navigator.pushNamed(context, '/main');
+  //   } else {
+  //     print('로그인이 필요합니다');
+  //   }
+  // }
 
   @override
   void initState() {
     super.initState();
 
     // 비동기로 flutter secure storage 정보를 불러오는 작업
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _asyncMethod();
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   _asyncMethod();
+    // });
   }
 
 
@@ -98,7 +95,7 @@ class _SignInPageState extends State<SignInPage> {
   // 사용자 정보 조회 : 대화하기가 1이면 인트로 아니면 그냥 홈으로 이동
   void fetchUserInfo(String aToken) async {
     // API 엔드포인트 URL
-    print("받토~~~:" + aToken);
+    print("받토:" + aToken);
     String apiUrl = 'http://3.38.1.125:8080/user/info'; // 실제 API 엔드포인트로 변경하세요
 
     // 헤더 정보 설정
@@ -220,6 +217,8 @@ class _SignInPageState extends State<SignInPage> {
       // 사용자가 처음 로그인한 경우
       print("check uid(처음 로그인):"+ user.uid);
       fetchSignUpToken(user.uid, googleUser!.email);
+      checkSignUp = true;
+
     } else{
       print("check uid(원래 있던 로그인):"+ user!.uid);
       fetchSignInToken(user!.uid);
@@ -256,17 +255,45 @@ class _SignInPageState extends State<SignInPage> {
               ),
               SizedBox(height: 32,),
 
+              // Container(
+              //   width: screenSize.width,
+              //   height: 44,
+              //   child:
+              //   TextFormField(
+              //     controller: idController,
+              //     style: textStyle.bk16normal,
+              //     decoration: InputDecoration(
+              //       contentPadding: EdgeInsets.only(top:3, left: 5),
+              //       hintStyle: textStyle.grey16normal,
+              //       border: InputBorder.none,
+              //       focusedBorder: OutlineInputBorder(
+              //         borderRadius: BorderRadius.circular(12.0),
+              //         borderSide: BorderSide(width: 1, color: Colors.white),
+              //       ),
+              //       filled: true,
+              //       fillColor: Color(0xffEEF3FE),
+              //       hintText: '이메일',
+              //       enabledBorder: OutlineInputBorder(
+              //         borderSide: BorderSide(width: 1, color: Colors.white), //<-- SEE HERE
+              //         borderRadius: BorderRadius.circular(12.0),
+              //       ),
+              //     ),
+              //   ),
+              // ),
               Container(
                 width: screenSize.width,
                 height: 44,
-                child:
-                TextFormField(
+                child: TextFormField(
                   controller: idController,
                   style: textStyle.bk16normal,
                   decoration: InputDecoration(
                     contentPadding: EdgeInsets.only(top:3, left: 5),
                     hintStyle: textStyle.grey16normal,
                     border: InputBorder.none,
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
                     filled: true,
                     fillColor: Color(0xffEEF3FE),
                     hintText: '이메일',
@@ -290,6 +317,10 @@ class _SignInPageState extends State<SignInPage> {
                     contentPadding: EdgeInsets.only(top:3, left: 5),
                     hintStyle: textStyle.grey16normal,
                     border: InputBorder.none,
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
                     filled: true,
                     fillColor: Color(0xffEEF3FE),
                     hintText: '비밀번호',
@@ -317,7 +348,7 @@ class _SignInPageState extends State<SignInPage> {
                         );
 
                         if (credential.user != null) {
-                          checkSignIn = true;
+                          // checkSignIn = true;
                           print("테스트");
                           print(credential);
                           print(credential.user!.uid);
@@ -387,6 +418,7 @@ class _SignInPageState extends State<SignInPage> {
                 height: 44,
                 width: screenSize.width,
                 child: ElevatedButton(onPressed: (){
+                  // checkSignUp = true; // 위치 변경 필요
                   Navigator.push(
                       context,
                       MaterialPageRoute(
