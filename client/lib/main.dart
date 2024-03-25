@@ -1,225 +1,223 @@
+/// main
+import 'dart:async';
+import 'dart:convert';
+import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:client/home.dart';
-import 'package:custom_navigation_bar/custom_navigation_bar.dart';
+import 'package:get/get.dart';
+import 'package:client/conversation/intro/intro.dart';
+import 'package:client/conversation/intro/intro_story.dart';
+import 'package:client/screen.dart';
+import 'package:client/sign/sign_in.dart' as sign_in;
+import 'check_user.dart';
+import 'firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:client/sign/sign_up.dart' as sign_up;
+import 'package:just_audio/just_audio.dart';
 
+import 'sign/sign_in.dart';
 
-void main() => runApp(const MyApp());
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(MyApp()); // MyApp 클래스 실행
+}
 
-enum ThemeStyle {
-  BlurEffect,
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
 }
 
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+bool play = false; // 배경음악 재생
+final player = AudioPlayer(); // 배경음악 플레이어
+String station = ""; // 대화단계
+List<dynamic> musics =[
+  "assets/musics/intro_music_1.mp3", "assets/musics/early_music.mp3", "assets/musics/middle_music.mp3",
+  "assets/musics/late_music.mp3", "assets/musics/end_music.mp3",
+];
 
-  static const String _title = 'Flutter Code Sample';
+late Map<String, dynamic> parsedResponseAT; // 액세스 토큰
+// 로그인 토큰 발급해오기
+Future fetchSignInToken(String fToken) async {
+  // API 엔드포인트 URL
+  print("받토:" + fToken);
+  String apiUrl = 'http://3.38.1.125:8080/auth/signin'; // 실제 API 엔드포인트로 변경하세요
 
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: _title,
-      home: MyStatefulWidget(),
-    );
+  // 헤더 정보 설정
+  Map<String, String> headers = {
+    'X-Firebase-Token': fToken, // 예: 인증 토큰을 추가하는 방법
+    'Content-Type': 'application/json', // 예: JSON 요청인 경우 헤더 설정
+    'Accept': '*/*'
+  };
+
+  // HTTP GET 요청 보내기
+  var response = await http.get(
+    Uri.parse(apiUrl),
+    headers: headers, // 헤더 추가
+  );
+
+  // HTTP 응답 상태 확인
+  if (response.statusCode == 200) {
+    // 응답 데이터 처리
+    print('서버로부터 받은 내용 데이터: ${response.body}');
+    var jsonResponse = utf8.decode(response.bodyBytes);
+
+    parsedResponseAT = json.decode(jsonResponse);
+
+    sign_in.userAccessToken = parsedResponseAT['accessToken']; // 액세스 토큰을 전역변수에 저장 -> 다른 파일에서도 사용
+    print("accessToken:" + sign_in.userAccessToken);
+
+    fetchUserInfo(sign_in.userAccessToken);
+
+  } else {
+    // 요청이 실패한 경우 오류 처리
+    print('HTTP 요청 실패: ${response.statusCode}');
   }
 }
 
-class MyStatefulWidget extends StatefulWidget {
-  const MyStatefulWidget({Key? key}) : super(key: key);
+late Map<String, dynamic> parsedResponseUser; // 사용자 정보
+bool userNew = false;
 
-  @override
-  State<MyStatefulWidget> createState() => _MyStatefulWidgetState();
-}
+// 사용자 정보 조회 : 대화하기가 1이면 인트로 아니면 그냥 홈으로 이동
+void fetchUserInfo(String aToken) async {
+  // API 엔드포인트 URL
+  print("받토:" + aToken);
+  String apiUrl = 'http://3.38.1.125:8080/user/info'; // 실제 API 엔드포인트로 변경하세요
 
-class _MyStatefulWidgetState extends State<MyStatefulWidget> {
+  // 헤더 정보 설정
+  Map<String, String> headers = {
+    'Authorization': 'Bearer $aToken', // 예: 인증 토큰을 추가하는 방법
+    'Content-Type': 'application/json', // 예: JSON 요청인 경우 헤더 설정
+  };
 
-  int _selectedIndex = 0;
-  int _currentIndex = 0;
+  // HTTP GET 요청 보내기
+  var response = await http.get(
+    Uri.parse(apiUrl),
+    headers: headers, // 헤더 추가
+  );
 
-  ThemeStyle _currentStyle = ThemeStyle.BlurEffect;
+  // HTTP 응답 상태 확인
+  if (response.statusCode == 200) {
+    // 응답 데이터 처리
+    print('서버로부터 받은 내용 데이터(사용자 정보~!): ${response.body}');
+    var jsonResponse = utf8.decode(response.bodyBytes);
+    parsedResponseUser = json.decode(jsonResponse);
+    print("확인"+parsedResponseUser["conversationStatus"].toString());
 
-  List<int> _badgeCounts = List<int>.generate(4, (index) => index);
-
-  List<bool> _badgeShows = List<bool>.generate(4, (index) => true);
-
-  static const TextStyle optionStyle =
-  TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-
-  final List<Widget> _widgetOptions = <Widget>[
-    HomePage(),
-    Text(
-      'Index 1: Gallery',
-      style: optionStyle,
-    ),
-    Text(
-      'Index 2: Comunity',
-      style: optionStyle,
-    ),
-    Text(
-      'Index 3: Mypage',
-      style: optionStyle,
-    ),
-  ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  // 메인 위젯
-  @override
-  Widget build(BuildContext context) {
-    MediaQueryData deviceData = MediaQuery.of(context);
-    Size screenSize = deviceData.size;
-
-    return Scaffold(
-      // extendBody for floating bar get better perfomance
-      extendBody: true,
-      backgroundColor: Colors.white,
-      body: Container(
-        width: screenSize.width,
-        //padding: EdgeInsets.only(bottom: 20),
-        child: _widgetOptions.elementAt(_selectedIndex),
-      ),
-      bottomNavigationBar: _buildBlurEffect(),
-    );
-  }
-
-
-  Widget _buildBottomNavigationBar() {
-    switch (_currentStyle) {
-      case ThemeStyle.BlurEffect:
-        return _buildBlurEffect();
-      default:
-        return _buildBlurEffect();
+    if(parsedResponseUser["conversationStatus"] == 0){
+      print("인트로");
+      userNew = true;
+    } else{
+      print("메인홈으로 이동");
     }
+
+  } else {
+    // 요청이 실패한 경우 오류 처리
+    print('HTTP 요청 실패: ${response.statusCode}');
   }
+}
 
-  Widget _buildTitle() {
-    return CustomNavigationBar(
-      iconSize: 30.0,
-      selectedColor: Color(0xff040307),
-      strokeColor: Color(0x30040307),
-      unSelectedColor: Color(0xffacacac),
-      backgroundColor: Colors.white,
-      items: [
-        CustomNavigationBarItem(
-          icon: Icon(Icons.home),
-          title: Text("Home"),
-        ),
-        CustomNavigationBarItem(
-          icon: Icon(Icons.shopping_cart),
-          title: Text("Cart"),
-        ),
-        CustomNavigationBarItem(
-          icon: Icon(Icons.lightbulb_outline),
-          title: Text("Explore"),
-        ),
-        CustomNavigationBarItem(
-          icon: Icon(Icons.search),
-          title: Text("Search"),
-        ),
-        CustomNavigationBarItem(
-          icon: Icon(Icons.account_circle),
-          title: Text("Me"),
-        ),
-      ],
-      currentIndex: _currentIndex,
-      onTap: (index) {
-        setState(() {
-          _currentIndex = index;
-        });
+class _MyAppState extends State<MyApp> {
+  // const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    //SystemChrome.setEnabledSystemUIOverlays([]);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive, overlays: []);
+    return GetMaterialApp(
+      builder: (BuildContext context, Widget? widget) {
+        ErrorWidget.builder = (FlutterErrorDetails errorDetails) {
+          return CustomError(errorDetails: errorDetails);
+        };
+        return widget!;
       },
-    );
-  }
+      debugShowCheckedModeBanner: false,
+      home:
+      StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
 
-  // Widget _buildBlurEffect() {
-  //   print("notification");
-  //   return CustomNavigationBar(
-  //     iconSize: 30.0,
-  //     selectedColor: Color(0xff040307),
-  //     strokeColor: Color(0x30040307),
-  //     unSelectedColor: Color(0xffacacac),
-  //     backgroundColor: Colors.white,
-  //     items: [
-  //       CustomNavigationBarItem(
-  //         icon: Icon(Icons.home),
-  //         badgeCount: _badgeCounts[0],
-  //         showBadge: _badgeShows[0],
-  //       ),
-  //       CustomNavigationBarItem(
-  //         icon: Icon(Icons.shopping_bag),
-  //         badgeCount: _badgeCounts[1],
-  //         showBadge: _badgeShows[1],
-  //       ),
-  //       CustomNavigationBarItem(
-  //         icon: Icon(Icons.lightbulb_outline),
-  //         badgeCount: _badgeCounts[2],
-  //         showBadge: _badgeShows[2],
-  //       ),
-  //       CustomNavigationBarItem(
-  //         icon: Icon(Icons.search),
-  //         badgeCount: _badgeCounts[3],
-  //         showBadge: _badgeShows[3],
-  //       ),
-  //       CustomNavigationBarItem(
-  //         icon: Icon(Icons.account_circle),
-  //         badgeCount: _badgeCounts[4],
-  //         showBadge: _badgeShows[4],
-  //       ),
-  //     ],
-  //     currentIndex: _currentIndex,
-  //     onTap: (index) {
-  //       setState(() {
-  //         _currentIndex = index;
-  //         _badgeShows[index] = false;
-  //       });
-  //     },
-  //   );
-  // }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator(); // 로딩 스피너 또는 로딩 화면을 보여줄 수 있습니다.
+          } else if (snapshot.hasData && checkSignUp == false) {
+            // 사용자가 로그인한 경우, 로그인된 화면으로 이동
+            // 토큰 패치
+            fetchSignInToken(FirebaseAuth.instance.currentUser!.uid);
+            if(play){
+              if(station.contains("0")){
+                player.setAsset(musics[0]);
+                player.play();
+              } else if(station.contains("1")){
+                player.setAsset(musics[0]);
+                player.play();
+              } else if(station.contains("2")){
+                player.setAsset(musics[0]);
+                player.play();
+              } else if(station.contains("3")){
+                player.setAsset(musics[0]);
+                player.play();
+              } else if(station.contains("4")){
+                player.setAsset(musics[0]);
+                player.play();
+              }
+            }
+            //return userNew? MyScreenPage(title: '홈') : IntroPage();
+            //return CheckUserPage(title: "title");
+            return MyScreenPage(title: '홈');
+          } else if(snapshot.hasData && checkSignUp == true){
+            return IntroStoryPage();
+          }
+          else {
+            // 사용자가 로그인하지 않은 경우, 로그인 화면으로 이동
+            print("로그인 안 했거나 예외수 발견");
+            //print(sign_in.checkSignIn);
+            return sign_in.SignInPage();
+          }
+        },
+      ),
 
-  Widget _buildBlurEffect() {
-    return CustomNavigationBar(
-      iconSize: 20.0,
-      selectedColor: Colors.deepPurpleAccent,
-      strokeColor: Colors.white,
-      unSelectedColor: Colors.grey[600],
-      backgroundColor: Colors.white,
-      borderRadius: Radius.circular(30.0),
-      blurEffect: true,
-      opacity: 0.7,
-      items: [
-        CustomNavigationBarItem(
-          icon: Icon(
-            Icons.home,
-          ),
-        ),
-        CustomNavigationBarItem(
-          icon: Icon(
-            Icons.image,
-          ),
-        ),
-        CustomNavigationBarItem(
-          icon: Icon(
-            Icons.connect_without_contact_rounded,
-          ),
-        ),
-        CustomNavigationBarItem(
-          icon: Icon(
-            Icons.person,
-          ),
-        ),
-      ],
-      currentIndex: _currentIndex,
-      onTap: (index) {
-        setState(() {
-          _currentIndex = index;
-        });
-      },
-      isFloating: true,
+
+      //SignInPage(),
+      theme: ThemeData(
+          scaffoldBackgroundColor: Color(0xffDDE7FD),
+          bottomSheetTheme: BottomSheetThemeData(
+              backgroundColor: Colors.white.withOpacity(0)
+          )
+      ),
+      // getPages: [
+      //   GetPage(name: '/login', page: () => LoginPage()),
+      // ],
     );
   }
 }
 
 
+
+class CustomError extends StatelessWidget {
+  final FlutterErrorDetails errorDetails;
+
+  const CustomError({
+    Key? key,
+    required this.errorDetails,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+
+          ],
+        ),
+      ),
+    );
+  }
+}

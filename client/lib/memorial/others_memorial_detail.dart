@@ -4,22 +4,21 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:client/screen.dart';
 import 'package:client/style.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'memorial_main.dart' as main;
+import 'others_memorial_main.dart' as main;
 import 'package:http/http.dart' as http;
 import 'package:client/sign/sign_in.dart' as sign_in;
 import 'package:client/memorial/slide/flutter_image_slideshow.dart';
 import 'package:client/home.dart' as home;
 
-class MemorialDetailPage extends StatefulWidget {
+class OthersMemorialDetailPage extends StatefulWidget {
   @override
-  State<MemorialDetailPage> createState() => _MemorialDetailPageState();
+  State<OthersMemorialDetailPage> createState() => _OthersMemorialDetailPageState();
 }
 
-class _MemorialDetailPageState extends State<MemorialDetailPage> {
+class _OthersMemorialDetailPageState extends State<OthersMemorialDetailPage> {
 
   // 화면에 보이는 UI 설정 bool
   bool fetchSuccess = false;
@@ -32,6 +31,8 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
   // 코멘트 수와 좋아요 수
   int comments = 0;
   int hearts = 0;
+
+  int comIndex = 0; // 삭제할 댓글 인덱스
 
   late Map<String, dynamic> parsedResponseCN; // 글 내용
   late List<dynamic> parsedResponseCM; // 댓글
@@ -88,36 +89,7 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
     }
   }
 
-  // 글 삭제하기
-  void deleteContent(String aToken) async {
-    // API 엔드포인트 URL
-    String apiUrl = 'http://3.38.1.125:8080/memorial?postId=${main.postId.toString()}';
 
-    // 헤더 정보 설정
-    Map<String, String> headers = {
-      'Authorization': 'Bearer $aToken', // 예: 인증 토큰을 추가하는 방법
-      'Content-Type': 'application/json', // 예: JSON 요청인 경우 헤더 설정
-    };
-
-    // HTTP GET 요청 보내기
-    var response = await http.delete(
-      Uri.parse(apiUrl),
-      headers: headers, // 헤더 추가
-    );
-
-    ///var jsonResponse = utf8.decode(response.bodyBytes);
-    // HTTP 응답 상태 확인
-    if (response.statusCode == 200) {
-      // 응답 데이터를 JSON 형식으로 디코딩
-      print("삭제성공");
-      setState(() {
-      });
-
-    } else {
-      // 요청이 실패한 경우 오류 처리
-      print('HTTP 요청 실패: ${response.statusCode}');
-    }
-  }
 
   void fetchData(String aToken) async {
     // API 엔드포인트 URL
@@ -218,6 +190,7 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
         setState(() {
         });
 
+
         print('API 호출 성공!!: ${response.statusCode}');
       } else {
         // 요청 실패 시의 처리
@@ -229,7 +202,78 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
     }
   }
 
-  int comIndex = 0; // 삭제할 댓글 인덱스
+  // 좋아요 누르기(POST)
+  void sendPostRequest(String aToken) async {
+    // API 엔드포인트 URL
+    String apiUrl = 'http://3.38.1.125:8080/memorial/like?postId=${main.postId.toString()}'; // 실제 API 엔드포인트로 변경하세요
+
+    // POST 요청 보내기e
+    var response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {
+        'Authorization': 'Bearer $aToken', // 예: 인증 토큰을 추가하는 방법
+        'Content-Type': 'application/json', // 예: JSON 요청인 경우 헤더 설정
+        //'Content-Type': 'application/json',
+      }, // 요청 헤더에 Content-Type 설정
+    );
+
+    // HTTP 응답 상태 확인
+    if (response.statusCode == 200) {
+      // 응답 데이터 처리
+      print('서버로부터 받은 내용 데이터: ${response.body}');
+      var jsonResponse = utf8.decode(response.bodyBytes);
+
+      setState(() {});
+      // print('서버로부터 받은 데이터: ${response.body}');
+    } else {
+      // 요청이 실패한 경우 오류 처리
+      print('HTTP 요청 실패: ${response.statusCode}');
+    }
+  }
+
+
+  // 좋아요 가져오기- 클릭여부 확인(GET)
+  void fetchDataLike(String aToken) async {
+    // API 엔드포인트 URL
+    String apiUrl = 'http://3.38.1.125:8080/memorial/like?postId=${main.postId.toString()}'; /// postId=1 추후에 바꿔주기
+
+    // 헤더 정보 설정
+    Map<String, String> headers = {
+      'Authorization': 'Bearer $aToken', // 예: 인증 토큰을 추가하는 방법
+      'Content-Type': 'application/json', // 예: JSON 요청인 경우 헤더 설정
+    };
+
+    // HTTP GET 요청 보내기
+    var response = await http.get(
+      Uri.parse(apiUrl),
+      headers: headers, // 헤더 추가
+    );
+
+    ///var jsonResponse = utf8.decode(response.bodyBytes);
+    // HTTP 응답 상태 확인
+    if (response.statusCode == 200) {
+      // 응답 데이터를 JSON 형식으로 디코딩
+      var data = json.decode(response.body);
+      var jsonResponse = utf8.decode(response.bodyBytes);
+
+      myHeart = json.decode(jsonResponse);
+
+      // 데이터 처리
+      print('좋아요~: $myHeart');
+      // if(myHeart == true){
+      //   hearts = 1;
+      // } else{
+      //   hearts = 0;
+      // }
+
+      setState(() {
+      });
+
+    } else {
+      // 요청이 실패한 경우 오류 처리
+      print('HTTP 요청 실패: ${response.statusCode}');
+    }
+  }
 
   // 댓글 삭제하기
   void deleteComment(String aToken, int commentId) async {
@@ -263,7 +307,7 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
   }
 
   // 댓글 삭제 팝업
-  void FlutterDialog2() {
+  void FlutterDialog() {
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
@@ -342,85 +386,6 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
     );
   }
 
-  // 좋아요 누르기(POST)
-  void sendPostRequest(String aToken) async {
-    // API 엔드포인트 URL
-    String apiUrl = 'http://3.38.1.125:8080/memorial/like?postId=${main.postId.toString()}'; // 실제 API 엔드포인트로 변경하세요
-
-    // POST 요청 보내기e
-    var response = await http.post(
-      Uri.parse(apiUrl),
-      headers: {
-        'Authorization': 'Bearer $aToken', // 예: 인증 토큰을 추가하는 방법
-        'Content-Type': 'application/json', // 예: JSON 요청인 경우 헤더 설정
-        //'Content-Type': 'application/json',
-      }, // 요청 헤더에 Content-Type 설정
-    );
-
-    // HTTP 응답 상태 확인
-    if (response.statusCode == 200) {
-      // 응답 데이터 처리
-      print('서버로부터 받은 내용 데이터: ${response.body}');
-      var jsonResponse = utf8.decode(response.bodyBytes);
-
-      setState(() {});
-      // print('서버로부터 받은 데이터: ${response.body}');
-    } else {
-      // 요청이 실패한 경우 오류 처리
-      print('HTTP 요청 실패: ${response.statusCode}');
-    }
-  }
-
-
-  // 좋아요 가져오기- 클릭여부 확인(GET)
-  void fetchDataLike(String aToken) async {
-    // API 엔드포인트 URL
-    String apiUrl = 'http://3.38.1.125:8080/memorial/like?postId=${main.postId.toString()}'; /// postId=1 추후에 바꿔주기
-
-    // 헤더 정보 설정
-    Map<String, String> headers = {
-      'Authorization': 'Bearer $aToken', // 예: 인증 토큰을 추가하는 방법
-      'Content-Type': 'application/json', // 예: JSON 요청인 경우 헤더 설정
-    };
-
-    // HTTP GET 요청 보내기
-    var response = await http.get(
-      Uri.parse(apiUrl),
-      headers: headers, // 헤더 추가
-    );
-
-    ///var jsonResponse = utf8.decode(response.bodyBytes);
-    // HTTP 응답 상태 확인
-    if (response.statusCode == 200) {
-      // 응답 데이터를 JSON 형식으로 디코딩
-      var data = json.decode(response.body);
-      var jsonResponse = utf8.decode(response.bodyBytes);
-
-      myHeart = json.decode(jsonResponse);
-
-      // 데이터 처리
-      print('좋아요: $myHeart');
-      // if(myHeart == true){
-      //   hearts++;
-      // } else{
-      //   if(hearts>=1){
-      //     hearts--;
-      //   }else{
-      //
-      //   }
-      //
-      // }
-
-      setState(() {
-      });
-
-    } else {
-      // 요청이 실패한 경우 오류 처리
-      print('HTTP 요청 실패: ${response.statusCode}');
-    }
-  }
-
-
   @override
   void initState() {
     super.initState();
@@ -431,13 +396,14 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
     fetchDataComment();
     fetchDataLike(sign_in.userAccessToken);
     setState(() {
+
     });
   }
 
   // 댓글 위젯
   Widget listview_builder(){
     return ListView.builder(
-        shrinkWrap: true,
+      shrinkWrap: true,
         scrollDirection: Axis.vertical,
         padding: EdgeInsets.all(0),
         physics: NeverScrollableScrollPhysics(),
@@ -471,22 +437,28 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
                         ],
                         SizedBox(width: 8,),
                         Container(width: 55,
-                          child: Text(parsedResponseCM[index]['nickname'], style: textStyle.bk12normal,),),
+                        child: Text(parsedResponseCM[index]['nickname'], style: textStyle.bk12normal,),),
                         SizedBox(width: 204,),
-                        Container(width: 78, height: 32,
-                          child: TextButton(onPressed: (){
-                            comIndex = parsedResponseCM[index]['id'];
-                            setState(() {
-                            });
-                            FlutterDialog2();
-                          }, child: Row(
-                            children: [
-                              Text("삭제하기", style: textStyle.grey12normal,),
-                              SvgPicture.asset('assets/images/memorial/deletecom.svg',),
-                            ],
-                          )
+                        if(parsedResponseCM[index]['nickname'] == home.user)...[
+                          Container(width: 78, height: 32,
+                            child: TextButton(onPressed: (){
+                              comIndex = parsedResponseCM[index]['id'];
+                              setState(() {
+                              });
+                              FlutterDialog();
+                            }, child: Row(
+                              children: [
+                                Text("삭제하기", style: textStyle.grey12normal,),
+                                SvgPicture.asset('assets/images/memorial/deletecom.svg',),
+                              ],
+                            )
+
+                            ),
                           ),
-                        ),
+
+                        ],
+
+
                       ],
                     ),
                     SizedBox(height: 6,),
@@ -526,88 +498,6 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
     return listHeight;
   }
 
-  // 글 삭제 팝업
-  void FlutterDialog() {
-    showDialog(
-        context: context,
-        builder: (_) => new AlertDialog(
-          shape: RoundedRectangleBorder(
-              borderRadius:
-              BorderRadius.all(
-                  Radius.circular(12.0))),
-          content: Builder(
-            builder: (context) {
-
-              return Container(
-                  height: 298,
-                  width: 412,
-                  child:
-                  Padding(padding: EdgeInsets.all(0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        SizedBox(height: 12,),
-                        Container(
-                          width: 125,
-                          height: 117,
-                          child: SvgPicture.asset(
-                            'assets/images/no_result.svg',
-                            width: 132,
-                            height: 123,
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                        SizedBox(height: 32,),
-                        Text("글을 삭제 하시겠어요?",style: textStyle.bk16bold,),
-                        SizedBox(height: 8,),
-                        Text("삭제한 후, 내용이 복구되지 않아요!", style: textStyle.bk14normal,),
-                        SizedBox(height: 32,),
-                        Row(
-                          children: [
-                            Container(
-                              height: 40,
-                              width: 120,
-                              child: ElevatedButton(
-                                child: new Text("취소", style: textStyle.purple16midium),
-                                style: buttonChart().purplebtn3,
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                              ),
-                            ),
-                            SizedBox(width: 16,),
-                            Container(
-                              height: 40,
-                              width: 120,
-                              child: ElevatedButton(
-                                child: new Text("삭제하기", style: textStyle.white16semibold),
-                                style: buttonChart().purplebtn,
-                                onPressed: () {
-
-                                  // 서버에 전송
-                                  deleteContent(sign_in.userAccessToken);
-                                  setState(() {});
-
-                                  // 이 사용자의 함께할개 홈으로 돌아가야함
-                                  Navigator.pop(context);
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => MyScreenPage(title: '홈페이지 이동')));
-                                },
-                              ),
-                            ),
-                          ],
-                        )
-                      ],
-                    ),)
-              );
-            },
-          ),
-        )
-    );
-  }
-
 
   @override
   Widget build(BuildContext context) {
@@ -615,19 +505,6 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(72),
           child: AppBar(
-            actions: <Widget>[
-              Padding(padding: EdgeInsets.only(top:15),
-                child: new IconButton(
-                  icon:SvgPicture.asset(
-                    'assets/images/memorial/delete.svg',),
-                  onPressed: (){
-                    // 삭제 팝업
-                    FlutterDialog();
-                  },
-                ),
-              ),
-
-            ],
             leading: Padding(
               padding: EdgeInsets.only(top: 20),
               child: IconButton(
@@ -668,7 +545,7 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
                               children: [
                                 Container(
                                   width: Get.width,
-                                  height: Get.width -32,
+                                  height: Get.width - 32,
                                   child:  ClipRRect(
                                     borderRadius: BorderRadius.circular(16.0),
                                     child:
@@ -686,18 +563,7 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
                                               Container(
                                                 width: Get.width,
                                                 height: Get.width - 32,
-                                                child:
-                                                Image(
-                                                  image: NetworkImage(parsedResponseIMGS[i], ),
-                                                  fit: BoxFit.cover,
-                                                  errorBuilder: (context, error, stackTrace) {
-                                                    // 오류 발생 시 대체 이미지를 표시
-                                                    return SvgPicture.asset(
-                                                      'assets/images/no_result.svg',);
-                                                  },
-                                                )
-                                                //Image.network(parsedResponseIMGS[i], fit: BoxFit.cover,),
-                                              ),
+                                                child: Image.network(parsedResponseIMGS[i], fit: BoxFit.cover,),),
                                               Padding(
                                                 padding: EdgeInsets.only(left: 300, top: 10),
                                                 child: Container(
@@ -722,11 +588,11 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
                                     //Image.network(main.selectedImage, fit: BoxFit.cover,),
                                   ),
                                 ),
-                                SizedBox(height: 16,),
+                                SizedBox(height: 15,),
                                 Row(
                                   children: [
                                     Container(
-                                      width: 145,
+                                      width: 120,
                                       height: 32,
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -737,7 +603,7 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
                                         ],
                                       ),
                                     ),
-                                    SizedBox(width: 125,),
+                                    SizedBox(width: 150,),
                                     Row(
                                       children: [
                                         Container(
@@ -789,11 +655,9 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
                                         Text('${hearts}'),
                                       ],
                                     )
-
-
                                   ],
                                 ),
-                                SizedBox(height: 16,),
+                                SizedBox(height: 15,),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -850,7 +714,7 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children:[
               Container(
-                color: Color(0xffF2F4F6),
+                color:Color(0xffF2F4F6),
                 height: 48,
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 8.0, top: 8.0, left: 16,right: 16),
@@ -900,6 +764,7 @@ class _MemorialDetailPageState extends State<MemorialDetailPage> {
                                 saveComment(sign_in.userAccessToken, myController.text);
                               }
                               addComment = false;
+
                               setState(() {
                               });
                               myController.clear();
